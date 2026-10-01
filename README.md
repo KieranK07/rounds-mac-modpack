@@ -1,4 +1,4 @@
-# ROUNDS modded on Mac
+# ROUNDS modded on Mac (and Windows)
 
 One command takes a Mac from **no ROUNDS** to **31 mods working** (UnboundLib, Cosmic Rounds, RoundsWithFriends,
 Classes Manager Reborn, MapsExtended and friends) on the **current** ROUNDS build.
@@ -7,18 +7,26 @@ Classes Manager Reborn, MapsExtended and friends) on the **current** ROUNDS buil
 curl -fsSL https://raw.githubusercontent.com/KieranK07/rounds-mac-modpack/main/install-mac.sh | bash
 ```
 
-Paste that into Terminal. It will:
+On **Windows**, the same pack (file for file, so Mac and Windows players can play together), in PowerShell:
+
+```powershell
+irm https://raw.githubusercontent.com/KieranK07/rounds-mac-modpack/main/install-windows.ps1 | iex
+```
+
+Paste that into Terminal (or PowerShell). It will:
 
 1. install ROUNDS through Steam if you don't have it yet (you need to own it and click **Install**)
-2. install BepInEx 5.4.23.5, set up to run **natively on Apple Silicon** (no Rosetta)
+2. install BepInEx 5.4.23.5, set up to run **natively on Apple Silicon** (no Rosetta) on a Mac
 3. download every mod **from its original author** (Thunderstore / GitHub), checking SHA-256s
 4. apply this repo's patches on your machine, checking every result
-5. set the ROUNDS launch option in Steam (Steam restarts once) and start the game
+5. on a Mac, set the ROUNDS launch option in Steam (Steam restarts once); then start the game
 
-Everyone you play with needs the same setup.
+Everyone you play with needs the same setup, on the current ROUNDS build (Steam → ROUNDS → Properties → Betas →
+**None**, not `old-rounds-for-mods`).
 
 **Status:** tested on an Apple M4, macOS 27.2, both native and under Rosetta. Intel Macs should work but are
-untested. Windows is planned (the patches are platform-independent, but the installer is Mac-only for now).
+untested. Windows: the installer's output is checked identical to the Mac install, file for file; first runs on real
+Windows PCs are pending.
 Online lobbies through RoundsWithFriends haven't been tested yet.
 
 Running it again is safe: it checks every file against the pack, adds what's missing and updates what it installed
@@ -27,6 +35,8 @@ back, moving yours to a backup folder.
 
 Options: `--no-steam-config` (don't edit Steam; paste the launch option yourself), `--no-launch`,
 `--game-dir <path>`, `--rosetta` (run under Rosetta instead of natively), `--repair`.
+Windows: `-Repair`, `-NoLaunch`, `-GameDir <path>`, passed as
+`& ([scriptblock]::Create((irm <url>))) -Repair`.
 To switch for one launch, put `ROUNDS_ARCH=x86_64,arm64` (Rosetta) or `ROUNDS_ARCH=arm64,x86_64` (native) in front
 of the Steam launch option. To run from a clone: `./install-mac.sh`.
 
@@ -86,8 +96,10 @@ cd src/MacCompatFixes && dotnet build -c Release -p:Deploy=true
 
 ## Uninstall
 
-Steam → ROUNDS → Properties → clear **Launch Options**. To remove everything, delete the `BepInEx` folder (and
+Mac: Steam → ROUNDS → Properties → clear **Launch Options**. To remove everything, delete the `BepInEx` folder (and
 `run_bepinex.sh`, `libdoorstop.dylib`) from the game folder, or uninstall ROUNDS.
+
+Windows: delete `winhttp.dll` from the game folder (and `BepInEx`, `doorstop_config.ini` to remove everything).
 
 ## License
 

@@ -22,7 +22,7 @@
 set -euo pipefail
 
 REPO="KieranK07/rounds-mac-modpack"
-REF="${ROUNDS_MODPACK_REF:-v1.2.1}"
+REF="${ROUNDS_MODPACK_REF:-v1.3.0}"
 APPID=1557740
 BEPINEX_URL="https://github.com/BepInEx/BepInEx/releases/download/v5.4.23.5/BepInEx_macos_universal_5.4.23.5.zip"
 BEPINEX_SHA="01c2ae782eb016dfd6c345a18dbd2dcafffb3d9d318449d6486689f426b4a323"
@@ -52,7 +52,7 @@ fetch() { # url dest [sha]
   if [ -n "${3:-}" ] && [ "$(sha "$2")" != "$3" ]; then die "checksum mismatch for $1 (file changed upstream?)"; fi
 }
 
-[ "$(uname -s)" = Darwin ] || die "this installer is for macOS (Windows support is planned, see README)"
+[ "$(uname -s)" = Darwin ] || die "this installer is for macOS; on Windows use install-windows.ps1 (see README)"
 STEAM_ROOT="$HOME/Library/Application Support/Steam"
 WORK="$(mktemp -d -t rounds-modpack)"; trap 'rm -rf "$WORK"' EXIT
 

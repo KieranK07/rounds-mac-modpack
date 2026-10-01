@@ -506,6 +506,19 @@
     "description": "Hot-reloads plugins from BepInEx/scripts; this repo's Hot Reload plugin is modelled on it. Not shipped."
   },
   {
+    "id": "bsdiff",
+    "name": "bsdiff / bspatch",
+    "version": null,
+    "group": "Tooling",
+    "authors": [
+      "Colin Percival"
+    ],
+    "thunderstore": null,
+    "source": "https://www.daemonology.net/bsdiff/",
+    "license": "BSD-2-Clause",
+    "description": "Binary patch format of patches/. macOS's bspatch applies them; tools/bspatch-cs is our own C# reader for Windows."
+  },
+  {
     "id": "harmonyx",
     "name": "HarmonyX",
     "version": null,
