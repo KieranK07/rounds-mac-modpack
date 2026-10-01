@@ -8,7 +8,9 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
   </ItemGroup>
-  <PropertyGroup><M>$(HOME)/Library/Application Support/Steam/steamapps/common/ROUNDS/ROUNDS.app/Contents/Resources/Data/Managed</M></PropertyGroup>
+  <!-- The game's Managed folder. Override with -p:M=<path>. -->
+  <PropertyGroup Condition="'$(M)' == '' And '$(OS)' == 'Windows_NT'"><M>C:\Program Files (x86)\Steam\steamapps\common\ROUNDS\Rounds_Data\Managed</M></PropertyGroup>
+  <PropertyGroup Condition="'$(M)' == ''"><M>$(HOME)/Library/Application Support/Steam/steamapps/common/ROUNDS/ROUNDS.app/Contents/Resources/Data/Managed</M></PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp"><HintPath>$(M)/Assembly-CSharp.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="Unity.Localization"><HintPath>$(M)/Unity.Localization.dll</HintPath><Private>false</Private></Reference>

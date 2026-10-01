@@ -58,6 +58,16 @@ authors, links and license, and **[NOTICE.md](NOTICE.md)** for what's downloaded
 No mod files are re-uploaded here: the installer fetches them from their authors and patches them locally.
 If you're an author and want something changed, please open an issue.
 
+## Porting your own mod
+
+[`tools/rounds-port`](tools/rounds-port) scans any ROUNDS mod DLL for what the 2025 update broke and fixes the
+mechanical parts (renamed fields, new damage parameters, moved types, Harmony and reflection renames). It runs on
+Windows, macOS and Linux and is how most of the mods here were ported.
+
+```sh
+cd tools/rounds-port && dotnet run -c Release -- scan path/to/MyMod.dll
+```
+
 ## Developing
 
 `MacCompatFixes` loads through BepInEx's ScriptEngine from `BepInEx/scripts`, so it hot-reloads: rebuild it while
