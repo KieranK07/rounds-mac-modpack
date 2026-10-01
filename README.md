@@ -21,8 +21,12 @@ Everyone you play with needs the same setup.
 untested. Windows is planned (the patches are platform-independent, but the installer is Mac-only for now).
 Online lobbies through RoundsWithFriends haven't been tested yet.
 
+Running it again is safe: it checks every file against the pack, adds what's missing and updates what it installed
+before, but leaves files you changed (and mods you added) alone and lists them. `--repair` puts the pack's copies
+back, moving yours to a backup folder.
+
 Options: `--no-steam-config` (don't edit Steam; paste the launch option yourself), `--no-launch`,
-`--game-dir <path>`, `--rosetta` (run under Rosetta instead of natively).
+`--game-dir <path>`, `--rosetta` (run under Rosetta instead of natively), `--repair`.
 To switch for one launch, put `ROUNDS_ARCH=x86_64,arm64` (Rosetta) or `ROUNDS_ARCH=arm64,x86_64` (native) in front
 of the Steam launch option. To run from a clone: `./install-mac.sh`.
 

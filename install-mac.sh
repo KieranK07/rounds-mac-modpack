@@ -11,14 +11,18 @@
 #   4. applies this repo's binary patches (fixes for the 2025 ROUNDS update + macOS) and checks the result
 #   5. adds the Mac Compat Fixes and Hot Reload plugins, configs, and the Steam launch option, then starts the game
 #
+# Safe to run again: it rebuilds the setup in a temporary folder and compares it with the game file by file. Missing
+# files are added, files it installed earlier are updated, and a file you changed is left alone and listed.
+#
 # Options: --no-steam-config   don't touch Steam's launch options (you paste it yourself)
 #          --no-launch         don't start the game at the end
 #          --game-dir <path>   ROUNDS folder, if Steam keeps it somewhere unusual
 #          --rosetta           run the game under Rosetta instead of natively (the setup before v1.1.0)
+#          --repair            also replace files you changed (your copies are moved to a backup folder)
 set -euo pipefail
 
 REPO="KieranK07/rounds-mac-modpack"
-REF="${ROUNDS_MODPACK_REF:-v1.2.0}"
+REF="${ROUNDS_MODPACK_REF:-v1.2.1}"
 APPID=1557740
 BEPINEX_URL="https://github.com/BepInEx/BepInEx/releases/download/v5.4.23.5/BepInEx_macos_universal_5.4.23.5.zip"
 BEPINEX_SHA="01c2ae782eb016dfd6c345a18dbd2dcafffb3d9d318449d6486689f426b4a323"
@@ -27,13 +31,14 @@ BEPINEX_SHA="01c2ae782eb016dfd6c345a18dbd2dcafffb3d9d318449d6486689f426b4a323"
 DOORSTOP_URL="https://github.com/NeighTools/UnityDoorstop/releases/download/ci/doorstop_macos_release_4.6.0.zip"
 DOORSTOP_SHA="22790b63ef25a3737eb4a80dfe49ea80cfce3bb2f48689ef19dc11bcdd390c6f"
 
-STEAM_CONFIG=1; LAUNCH=1; GAME_DIR=""; ROSETTA=0
+STEAM_CONFIG=1; LAUNCH=1; GAME_DIR=""; ROSETTA=0; REPAIR=0
 while [ $# -gt 0 ]; do
   case "$1" in
     --no-steam-config) STEAM_CONFIG=0;;
     --no-launch) LAUNCH=0;;
     --game-dir) GAME_DIR="$2"; shift;;
     --rosetta) ROSETTA=1;;
+    --repair) REPAIR=1;;
     *) echo "unknown option: $1"; exit 1;;
   esac; shift
 done
@@ -100,15 +105,12 @@ note "ROUNDS: $G"
 if pgrep -x ROUNDS >/dev/null; then die "ROUNDS is running - quit it and run this again."; fi
 
 # ---------------------------------------------------------------- BepInEx
-say "Installing BepInEx 5.4.23.5"
-STAMP="$(date +%Y%m%d-%H%M%S)"
-if [ -d "$G/BepInEx" ]; then
-  mkdir -p "$G/BepInEx.backup-$STAMP"
-  for d in plugins scripts config patchers; do [ -d "$G/BepInEx/$d" ] && mv "$G/BepInEx/$d" "$G/BepInEx.backup-$STAMP/"; done
-  note "your previous mods/config were moved to BepInEx.backup-$STAMP"
-fi
+# Everything is put together in $ST first (laid out like the game folder) and copied over at the end, so running
+# this again only checks the install.
+ST="$WORK/stage"; mkdir -p "$ST"
+say "Preparing BepInEx 5.4.23.5"
 fetch "$BEPINEX_URL" "$WORK/bepinex.zip" "$BEPINEX_SHA"
-ditto -x -k "$WORK/bepinex.zip" "$G"
+ditto -x -k "$WORK/bepinex.zip" "$ST"
 if [ "$NATIVE" = 1 ]; then
   # BepInEx 5.4.23.5 can't write Harmony patches into arm64 code. The fix (BepInEx PR #1402, by cdobbyn) is merged
   # but not released yet: patch the two DLLs it touches to that build (tools/bepinex-arm64) and use Doorstop 4.6.0.
@@ -116,10 +118,10 @@ if [ "$NATIVE" = 1 ]; then
   if curl -fL --retry 3 -sS -A "Mozilla/5.0 rounds-mac-modpack" -o "$WORK/doorstop.zip" "$DOORSTOP_URL" \
       && [ "$(sha "$WORK/doorstop.zip")" = "$DOORSTOP_SHA" ]; then
     ditto -x -k "$WORK/doorstop.zip" "$WORK/doorstop"
-    cp "$WORK/doorstop/universal/libdoorstop.dylib" "$WORK/doorstop/universal/.doorstop_version" "$G/"
+    cp "$WORK/doorstop/universal/libdoorstop.dylib" "$WORK/doorstop/universal/.doorstop_version" "$ST/"
     while IFS=$'\t' read -r rel before after patch; do
       [ -z "$rel" ] && continue
-      f="$G/BepInEx/core/$rel"
+      f="$ST/BepInEx/core/$rel"
       [ "$(sha "$f")" = "$before" ] || die "unexpected original for BepInEx/core/$rel"
       /usr/bin/bspatch "$f" "$f.patched" "$PAYLOAD/patches/$patch"
       [ "$(sha "$f.patched")" = "$after" ] || die "patch result mismatch for BepInEx/core/$rel"
@@ -140,21 +142,21 @@ awk -v pref="$PREF" '
     print "# Override for one launch with ROUNDS_ARCH, e.g. ROUNDS_ARCH=x86_64,arm64 in Steam launch options.";
     print "archpreference=\"${ROUNDS_ARCH:-" pref "}\""; next }
   { sub(/export ARCHPREFERENCE="arm64,x86_64"/, "export ARCHPREFERENCE=\"${archpreference}\""); print }
-' "$G/run_bepinex.sh" > "$WORK/run_bepinex.sh"
+' "$ST/run_bepinex.sh" > "$WORK/run_bepinex.sh"
 grep -q "^archpreference=\"\${ROUNDS_ARCH:-$PREF}\"" "$WORK/run_bepinex.sh" && grep -q 'export ARCHPREFERENCE="${archpreference}"' "$WORK/run_bepinex.sh" \
   || die "couldn't configure run_bepinex.sh"
-cp "$WORK/run_bepinex.sh" "$G/run_bepinex.sh"
-chmod +x "$G/run_bepinex.sh"
-mkdir -p "$G/BepInEx/plugins" "$G/BepInEx/scripts" "$G/BepInEx/config"
-cp "$PAYLOAD"/config/*.cfg "$G/BepInEx/config/"
+cp "$WORK/run_bepinex.sh" "$ST/run_bepinex.sh"
+chmod +x "$ST/run_bepinex.sh"
+mkdir -p "$ST/BepInEx/plugins" "$ST/BepInEx/scripts" "$ST/BepInEx/config"
+cp "$PAYLOAD"/config/*.cfg "$ST/BepInEx/config/"
 
 # Hot Reload (this repo, MIT): loads BepInEx/scripts and swaps mods in and out while the game runs
-mkdir -p "$G/BepInEx/plugins/HotReload"
-cp "$PAYLOAD"/bundled/HotReload.dll "$PAYLOAD"/bundled/HotReload.pdb "$G/BepInEx/plugins/HotReload/"
+mkdir -p "$ST/BepInEx/plugins/HotReload"
+cp "$PAYLOAD"/bundled/HotReload.dll "$PAYLOAD"/bundled/HotReload.pdb "$ST/BepInEx/plugins/HotReload/"
 
 # ---------------------------------------------------------------- mods from their original sources
 say "Downloading mods from their authors (Thunderstore / GitHub)"
-P="$G/BepInEx/plugins"
+P="$ST/BepInEx/plugins"
 while IFS=$'\t' read -r id kind url want; do
   [ -z "$id" ] && continue
   case "$kind" in
@@ -181,13 +183,55 @@ done < "$PAYLOAD/manifest/patches.tsv"
 # Odin Serializer stand-ins for MapsExtended (built from TeamSirenix/odin-serializer, Apache-2.0)
 cp "$PAYLOAD"/bundled/odin/* "$P/olavim-MapsExtended-1.4.2/"
 # Mac Compat Fixes (this repo, MIT) - loaded by Hot Reload, so it can be swapped while the game runs
-cp "$PAYLOAD"/bundled/MacCompatFixes.dll "$PAYLOAD"/bundled/MacCompatFixes.pdb "$G/BepInEx/scripts/"
+cp "$PAYLOAD"/bundled/MacCompatFixes.dll "$PAYLOAD"/bundled/MacCompatFixes.pdb "$ST/BepInEx/scripts/"
+
+# ---------------------------------------------------------------- copy into the game, or check what's there
+say "Installing into the game folder"
+MARK="BepInEx/rounds-mac-modpack.sha256"   # every file this installer put in the game, as `shasum -a 256` lines
+BACKUP="$G/BepInEx.backup-$(date +%Y%m%d-%H%M%S)"
+backup() { mkdir -p "$BACKUP/$(dirname "$1")" && mv "$G/$1" "$BACKUP/$1"; }
+FRESH=0
+if [ ! -f "$G/$MARK" ]; then
+  # First install (or one from before v1.2.1): other mods could clash with these, so start from empty plugin
+  # folders (moved to a backup, not deleted). Settings in BepInEx/config stay.
+  FRESH=1
+  for d in plugins scripts patchers; do
+    if [ -d "$G/BepInEx/$d" ]; then mkdir -p "$BACKUP"; mv "$G/BepInEx/$d" "$BACKUP/"; fi
+  done
+  if [ -d "$BACKUP" ]; then note "mods that were already there were moved to $(basename "$BACKUP")"; fi
+fi
+(cd "$ST" && find . -type f ! -name .DS_Store | sed 's#^\./##' | LC_ALL=C sort) > "$WORK/files"
+(cd "$ST" && tr '\n' '\0' < "$WORK/files" | xargs -0 shasum -a 256) > "$WORK/new.sha256"
+: > "$WORK/old.sha256"; if [ -f "$G/$MARK" ]; then cp "$G/$MARK" "$WORK/old.sha256"; fi
+installed() { awk -v p="$1" 'substr($0, 67) == p { print substr($0, 1, 64); exit }' "$WORK/old.sha256"; }
+ok=0; added=0; updated=0; kept=0; removed=0
+while IFS= read -r f; do
+  if [ ! -e "$G/$f" ]; then
+    mkdir -p "$G/$(dirname "$f")"; cp -p "$ST/$f" "$G/$f"; added=$((added + 1))
+  elif cmp -s "$ST/$f" "$G/$f"; then
+    ok=$((ok + 1))
+  elif [ "$FRESH" = 1 ] || [ "$REPAIR" = 1 ] || [ "$(sha "$G/$f")" = "$(installed "$f")" ]; then
+    backup "$f"; cp -p "$ST/$f" "$G/$f"; updated=$((updated + 1))   # ours from before (e.g. an update), or asked to
+  else
+    kept=$((kept + 1)); note "you changed this, left as is: $f"
+  fi
+done < "$WORK/files"
+# Files an earlier version installed and this one doesn't (ScriptEngine before v1.2.0): out, unless you changed them.
+while IFS= read -r line; do
+  f="${line:66}"
+  [ -n "$f" ] && [ -f "$G/$f" ] || continue
+  grep -qxF "$f" "$WORK/files" && continue
+  if [ "$(sha "$G/$f")" = "${line:0:64}" ]; then backup "$f"; removed=$((removed + 1)); else note "no longer part of the pack, left as is: $f"; fi
+done < "$WORK/old.sha256"
+cp "$WORK/new.sha256" "$G/$MARK"
 xattr -dr com.apple.quarantine "$G" 2>/dev/null || true
+note "$(wc -l < "$WORK/files" | tr -d ' ') files checked: $ok already right, $added added, $updated updated, $removed removed, $kept changed by you"
+if [ "$kept" -gt 0 ]; then note "to put back the pack's copies, run this again with --repair (yours go to a backup folder)"; fi
+if [ "$FRESH" = 0 ] && [ "$((updated + removed))" -gt 0 ]; then note "replaced files were moved to $(basename "$BACKUP")"; fi
 
 # ---------------------------------------------------------------- Steam launch option
 OPT="\"$G/run_bepinex.sh\" %command%"
-set_launch_option() { # vdf file
-  local f="$1"; cp "$f" "$f.bak-rounds-modpack"
+launch_option_vdf() { # in out: localconfig.vdf with ROUNDS' launch option set
   LO="$OPT" awk -v app="\"$APPID\"" '
     function q(s){ gsub(/\\/,"\\\\",s); gsub(/"/,"\\\"",s); return "\"" s "\"" }
     BEGIN{ val=q(ENVIRON["LO"]); inapps=0; inblk=0; done=0 }
@@ -200,9 +244,17 @@ set_launch_option() { # vdf file
       if (inblk && line ~ /^\t\t\t\t\t\}$/) { if (!done) print "\t\t\t\t\t\t\"LaunchOptions\"\t\t" val; done=1; inblk=0; inapps=0; print; next }
       if (inapps && !inblk && line ~ /^\t\t\t\t\}$/) { if (!done) { print "\t\t\t\t\t" app; print "\t\t\t\t\t{"; print "\t\t\t\t\t\t\"LaunchOptions\"\t\t" val; print "\t\t\t\t\t}"; done=1 } inapps=0; print; next }
       print
-    }' "$f.bak-rounds-modpack" > "$f"
+    }' "$1" > "$2"
 }
-if [ "$STEAM_CONFIG" = 1 ]; then
+VDFS=(); STALE=0
+for f in "$STEAM_ROOT"/userdata/*/config/localconfig.vdf; do
+  [ -f "$f" ] || continue
+  VDFS+=("$f"); launch_option_vdf "$f" "$WORK/vdf"; awk '{ print }' "$f" > "$WORK/vdf.now"
+  cmp -s "$WORK/vdf.now" "$WORK/vdf" || STALE=$((STALE + 1))
+done
+if [ "$STEAM_CONFIG" = 1 ] && [ "${#VDFS[@]}" -gt 0 ] && [ "$STALE" = 0 ]; then
+  say "Steam launch option"; note "already set"
+elif [ "$STEAM_CONFIG" = 1 ] && [ "${#VDFS[@]}" -gt 0 ]; then
   say "Setting the ROUNDS launch option in Steam (Steam will restart)"
   if pgrep -x steam_osx >/dev/null; then
     osascript -e 'quit app "Steam"' >/dev/null 2>&1 || true
@@ -213,9 +265,8 @@ if [ "$STEAM_CONFIG" = 1 ]; then
     fi
     pgrep -x steam_osx >/dev/null && die "Steam didn't quit. Close Steam and run this again (or use --no-steam-config)."
   fi
-  n=0
-  for f in "$STEAM_ROOT"/userdata/*/config/localconfig.vdf; do [ -f "$f" ] && set_launch_option "$f" && n=$((n+1)); done
-  note "updated $n Steam account(s)"
+  for f in "${VDFS[@]}"; do cp "$f" "$f.bak-rounds-modpack"; launch_option_vdf "$f.bak-rounds-modpack" "$f"; done
+  note "updated ${#VDFS[@]} Steam account(s)"
   open -a Steam
 else
   printf '%s' "$OPT" | pbcopy
