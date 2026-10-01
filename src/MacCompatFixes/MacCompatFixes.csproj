@@ -3,6 +3,7 @@
     <TargetFramework>net472</TargetFramework>
     <AssemblyName>MacCompatFixes</AssemblyName>
     <LangVersion>latest</LangVersion>
+    <PathMap>$(MSBuildProjectDirectory)=/_/MacCompatFixes</PathMap>
     <Nullable>disable</Nullable>
     <GameDir>$(HOME)/Library/Application Support/Steam/steamapps/common/ROUNDS</GameDir>
     <Managed>$(GameDir)/ROUNDS.app/Contents/Resources/Data/Managed</Managed>

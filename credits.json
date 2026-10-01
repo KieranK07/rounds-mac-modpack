@@ -464,6 +464,35 @@
     "notes": "ROUNDS Thunderstore pack (older 5.4.1901): https://thunderstore.io/c/rounds/p/BepInEx/BepInExPack_ROUNDS/"
   },
   {
+    "id": "bepinex-arm64-fix",
+    "name": "BepInEx native Apple Silicon fix",
+    "version": "v5-lts f4c1b11",
+    "group": "Tooling",
+    "authors": [
+      "cdobbyn"
+    ],
+    "thunderstore": null,
+    "source": "https://github.com/BepInEx/BepInEx/pull/1402",
+    "license": "LGPL-2.1",
+    "description": "Lets Harmony patch arm64 code on macOS, so ROUNDS runs without Rosetta.",
+    "notes": "Merged upstream 2026-09-20, not yet in a release. The installer patches BepInEx.dll and BepInEx.Preloader.dll to a build of v5-lts f4c1b11 (tools/bepinex-arm64/build.sh)."
+  },
+  {
+    "id": "unitydoorstop",
+    "name": "UnityDoorstop",
+    "version": "4.6.0",
+    "group": "Tooling",
+    "authors": [
+      "NeighTools (ghorsington and contributors)",
+      "cdobbyn (doorstop_jit_memcpy)"
+    ],
+    "thunderstore": null,
+    "source": "https://github.com/NeighTools/UnityDoorstop",
+    "license": "LGPL-2.1",
+    "description": "Loads BepInEx into the game. 4.6.0 adds doorstop_jit_memcpy, which native Apple Silicon needs.",
+    "notes": "Downloaded unmodified from the project's CI release (PR #114: https://github.com/NeighTools/UnityDoorstop/pull/114)."
+  },
+  {
     "id": "bepinex-scriptengine",
     "name": "BepInEx.Debug ScriptEngine",
     "version": "r11.1",

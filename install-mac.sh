@@ -4,8 +4,9 @@
 #   curl -fsSL https://raw.githubusercontent.com/KieranK07/rounds-mac-modpack/main/install-mac.sh | bash
 #
 # What it does (nothing here is uploaded anywhere):
-#   1. checks Rosetta 2 and Steam, installs ROUNDS through Steam if it isn't installed yet
-#   2. installs BepInEx 5 (official release) set up to run under Rosetta
+#   1. checks Steam, installs ROUNDS through Steam if it isn't installed yet
+#   2. installs BepInEx 5 (official release). On Apple Silicon it's patched to run natively (arm64); Intel Macs
+#      and --rosetta use the unpatched release, under Rosetta 2 on Apple Silicon
 #   3. downloads every mod from its original source (Thunderstore / the author's GitHub) and checks its SHA-256
 #   4. applies this repo's binary patches (fixes for the 2025 ROUNDS update + macOS) and checks the result
 #   5. adds the Mac Compat Fixes plugin, configs, and the Steam launch option, then starts the game
@@ -13,22 +14,28 @@
 # Options: --no-steam-config   don't touch Steam's launch options (you paste it yourself)
 #          --no-launch         don't start the game at the end
 #          --game-dir <path>   ROUNDS folder, if Steam keeps it somewhere unusual
+#          --rosetta           run the game under Rosetta instead of natively (the setup before v1.1.0)
 set -euo pipefail
 
 REPO="KieranK07/rounds-mac-modpack"
-REF="${ROUNDS_MODPACK_REF:-v1.0.0}"
+REF="${ROUNDS_MODPACK_REF:-v1.1.0}"
 APPID=1557740
 BEPINEX_URL="https://github.com/BepInEx/BepInEx/releases/download/v5.4.23.5/BepInEx_macos_universal_5.4.23.5.zip"
 BEPINEX_SHA="01c2ae782eb016dfd6c345a18dbd2dcafffb3d9d318449d6486689f426b4a323"
 SCRIPTENGINE_URL="https://github.com/BepInEx/BepInEx.Debug/releases/download/r11.1/ScriptEngine_r11.1.zip"
 SCRIPTENGINE_SHA="7f4a385f329f9290ab8ab00d48c14a46ed61964b61a2922354e09e0dbebb339b"
+# Native arm64 needs doorstop_jit_memcpy, new in UnityDoorstop 4.6.0 (only a CI build so far). If this file has
+# changed upstream, the installer falls back to Rosetta.
+DOORSTOP_URL="https://github.com/NeighTools/UnityDoorstop/releases/download/ci/doorstop_macos_release_4.6.0.zip"
+DOORSTOP_SHA="22790b63ef25a3737eb4a80dfe49ea80cfce3bb2f48689ef19dc11bcdd390c6f"
 
-STEAM_CONFIG=1; LAUNCH=1; GAME_DIR=""
+STEAM_CONFIG=1; LAUNCH=1; GAME_DIR=""; ROSETTA=0
 while [ $# -gt 0 ]; do
   case "$1" in
     --no-steam-config) STEAM_CONFIG=0;;
     --no-launch) LAUNCH=0;;
     --game-dir) GAME_DIR="$2"; shift;;
+    --rosetta) ROSETTA=1;;
     *) echo "unknown option: $1"; exit 1;;
   esac; shift
 done
@@ -57,16 +64,16 @@ else
   PAYLOAD="$WORK/payload"
 fi
 
-# ---------------------------------------------------------------- Rosetta
-if [ "$(uname -m)" = arm64 ]; then
-  say "Checking Rosetta 2 (BepInEx 5 only works on Intel code)"
-  if arch -x86_64 /usr/bin/true 2>/dev/null; then note "Rosetta is installed"
-  else
-    note "installing Rosetta (macOS may ask for your password)"
-    /usr/sbin/softwareupdate --install-rosetta --agree-to-license || sudo /usr/sbin/softwareupdate --install-rosetta --agree-to-license \
-      || die "couldn't install Rosetta; run: softwareupdate --install-rosetta"
-  fi
-fi
+# ---------------------------------------------------------------- native arm64 or Rosetta
+APPLE_SILICON=0
+case "$(sysctl -n machdep.cpu.brand_string 2>/dev/null)" in Apple*) APPLE_SILICON=1;; esac
+NATIVE=0; [ "$APPLE_SILICON" = 1 ] && [ "$ROSETTA" = 0 ] && NATIVE=1
+ensure_rosetta() {
+  if arch -x86_64 /usr/bin/true 2>/dev/null; then note "Rosetta is installed"; return; fi
+  note "installing Rosetta (macOS may ask for your password)"
+  /usr/sbin/softwareupdate --install-rosetta --agree-to-license || sudo /usr/sbin/softwareupdate --install-rosetta --agree-to-license \
+    || die "couldn't install Rosetta; run: softwareupdate --install-rosetta"
+}
 
 # ---------------------------------------------------------------- Steam + ROUNDS
 say "Finding Steam and ROUNDS"
@@ -95,7 +102,7 @@ note "ROUNDS: $G"
 if pgrep -x ROUNDS >/dev/null; then die "ROUNDS is running - quit it and run this again."; fi
 
 # ---------------------------------------------------------------- BepInEx
-say "Installing BepInEx 5.4.23.5 (set up for Rosetta)"
+say "Installing BepInEx 5.4.23.5"
 STAMP="$(date +%Y%m%d-%H%M%S)"
 if [ -d "$G/BepInEx" ]; then
   mkdir -p "$G/BepInEx.backup-$STAMP"
@@ -104,9 +111,41 @@ if [ -d "$G/BepInEx" ]; then
 fi
 fetch "$BEPINEX_URL" "$WORK/bepinex.zip" "$BEPINEX_SHA"
 ditto -x -k "$WORK/bepinex.zip" "$G"
-# BepInEx 5's MonoMod can't patch arm64 code: prefer the x86_64 slice of the universal game binary.
-sed -i '' -e 's/ARCHPREFERENCE="arm64,x86_64"/ARCHPREFERENCE="x86_64,arm64"/' -e 's/^executable_name=""/executable_name="ROUNDS.app"/' "$G/run_bepinex.sh"
-grep -q 'ARCHPREFERENCE="x86_64,arm64"' "$G/run_bepinex.sh" || die "couldn't configure run_bepinex.sh for Rosetta"
+if [ "$NATIVE" = 1 ]; then
+  # BepInEx 5.4.23.5 can't write Harmony patches into arm64 code. The fix (BepInEx PR #1402, by cdobbyn) is merged
+  # but not released yet: patch the two DLLs it touches to that build (tools/bepinex-arm64) and use Doorstop 4.6.0.
+  note "setting up native Apple Silicon (arm64)"
+  if curl -fL --retry 3 -sS -A "Mozilla/5.0 rounds-mac-modpack" -o "$WORK/doorstop.zip" "$DOORSTOP_URL" \
+      && [ "$(sha "$WORK/doorstop.zip")" = "$DOORSTOP_SHA" ]; then
+    ditto -x -k "$WORK/doorstop.zip" "$WORK/doorstop"
+    cp "$WORK/doorstop/universal/libdoorstop.dylib" "$WORK/doorstop/universal/.doorstop_version" "$G/"
+    while IFS=$'\t' read -r rel before after patch; do
+      [ -z "$rel" ] && continue
+      f="$G/BepInEx/core/$rel"
+      [ "$(sha "$f")" = "$before" ] || die "unexpected original for BepInEx/core/$rel"
+      /usr/bin/bspatch "$f" "$f.patched" "$PAYLOAD/patches/$patch"
+      [ "$(sha "$f.patched")" = "$after" ] || die "patch result mismatch for BepInEx/core/$rel"
+      mv "$f.patched" "$f"; note "BepInEx/core/$rel"
+    done < "$PAYLOAD/manifest/patches-native.tsv"
+  else
+    note "Doorstop 4.6.0 isn't available as expected (changed upstream?), so using Rosetta instead"
+    NATIVE=0
+  fi
+fi
+if [ "$APPLE_SILICON" = 1 ] && [ "$NATIVE" = 0 ]; then say "Checking Rosetta 2"; ensure_rosetta; fi
+PREF="arm64,x86_64"; [ "$NATIVE" = 0 ] && PREF="x86_64,arm64"
+# Which slice of the universal game binary to run. ROUNDS_ARCH in the Steam launch options overrides it.
+awk -v pref="$PREF" '
+  /^executable_name=""$/ { print "executable_name=\"ROUNDS.app\""; print "";
+    print "# MACOS: architectures to run the game as, most preferred first.";
+    print "# \"arm64,x86_64\" = native Apple Silicon, \"x86_64,arm64\" = Rosetta.";
+    print "# Override for one launch with ROUNDS_ARCH, e.g. ROUNDS_ARCH=x86_64,arm64 in Steam launch options.";
+    print "archpreference=\"${ROUNDS_ARCH:-" pref "}\""; next }
+  { sub(/export ARCHPREFERENCE="arm64,x86_64"/, "export ARCHPREFERENCE=\"${archpreference}\""); print }
+' "$G/run_bepinex.sh" > "$WORK/run_bepinex.sh"
+grep -q "^archpreference=\"\${ROUNDS_ARCH:-$PREF}\"" "$WORK/run_bepinex.sh" && grep -q 'export ARCHPREFERENCE="${archpreference}"' "$WORK/run_bepinex.sh" \
+  || die "couldn't configure run_bepinex.sh"
+cp "$WORK/run_bepinex.sh" "$G/run_bepinex.sh"
 chmod +x "$G/run_bepinex.sh"
 mkdir -p "$G/BepInEx/plugins" "$G/BepInEx/scripts" "$G/BepInEx/config"
 cp "$PAYLOAD"/config/*.cfg "$G/BepInEx/config/"
@@ -169,6 +208,10 @@ if [ "$STEAM_CONFIG" = 1 ]; then
   if pgrep -x steam_osx >/dev/null; then
     osascript -e 'quit app "Steam"' >/dev/null 2>&1 || true
     for _ in $(seq 1 60); do pgrep -x steam_osx >/dev/null || break; sleep 1; done
+    if pgrep -x steam_osx >/dev/null; then   # Steam sometimes ignores the quit request
+      note "Steam didn't quit; closing it"; pkill -x steam_osx || true
+      for _ in $(seq 1 20); do pgrep -x steam_osx >/dev/null || break; sleep 1; done
+    fi
     pgrep -x steam_osx >/dev/null && die "Steam didn't quit. Close Steam and run this again (or use --no-steam-config)."
   fi
   n=0
@@ -182,6 +225,8 @@ else
 fi
 
 say "Done! ROUNDS is modded."
+if [ "$NATIVE" = 1 ]; then note "Runs natively on Apple Silicon. To use Rosetta instead, run this again with --rosetta."
+elif [ "$APPLE_SILICON" = 1 ]; then note "Runs under Rosetta."; fi
 note "Mods: 31 from Thunderstore/GitHub + Mac Compat Fixes. Credits: in-game CREDITS > KIERAN'S UNBOUND, and the README."
 note "Uninstall: Steam > ROUNDS > Properties > clear Launch Options (or delete the BepInEx folder)."
 if [ "$LAUNCH" = 1 ]; then

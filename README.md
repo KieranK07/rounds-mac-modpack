@@ -9,20 +9,22 @@ curl -fsSL https://raw.githubusercontent.com/KieranK07/rounds-mac-modpack/main/i
 
 Paste that into Terminal. It will:
 
-1. install Rosetta 2 if needed (BepInEx 5 runs the game's Intel code)
-2. install ROUNDS through Steam if you don't have it yet (you need to own it and click **Install**)
-3. install BepInEx 5.4.23.5 and download every mod **from its original author** (Thunderstore / GitHub), checking SHA-256s
+1. install ROUNDS through Steam if you don't have it yet (you need to own it and click **Install**)
+2. install BepInEx 5.4.23.5, set up to run **natively on Apple Silicon** (no Rosetta)
+3. download every mod **from its original author** (Thunderstore / GitHub), checking SHA-256s
 4. apply this repo's patches on your machine, checking every result
 5. set the ROUNDS launch option in Steam (Steam restarts once) and start the game
 
 Everyone you play with needs the same setup.
 
-**Status:** tested on an Apple M4, macOS 27.2. Intel Macs should work but are
+**Status:** tested on an Apple M4, macOS 27.2, both native and under Rosetta. Intel Macs should work but are
 untested. Windows is planned (the patches are platform-independent, but the installer is Mac-only for now).
 Online lobbies through RoundsWithFriends haven't been tested yet.
 
 Options: `--no-steam-config` (don't edit Steam; paste the launch option yourself), `--no-launch`,
-`--game-dir <path>`. To run from a clone: `./install-mac.sh`.
+`--game-dir <path>`, `--rosetta` (run under Rosetta instead of natively).
+To switch for one launch, put `ROUNDS_ARCH=x86_64,arm64` (Rosetta) or `ROUNDS_ARCH=arm64,x86_64` (native) in front
+of the Steam launch option. To run from a clone: `./install-mac.sh`.
 
 ## Why this exists
 
@@ -32,15 +34,15 @@ Two things broke modded ROUNDS on Mac:
   `maxHealth`, damage methods, card names, …). The `old-rounds-for-mods` beta branch that Windows players fall
   back to **has no macOS build**, so the mods themselves had to be ported. [Bknibb](https://github.com/Bknibb) had
   already ported UnboundLib and RoundsWithFriends; this repo ports the rest.
-- **macOS itself**: BepInEx 5 can't patch arm64 code (so the game runs under Rosetta), UnboundLib calls a
-  Windows-only API at startup, and every mod's asset bundle only contains DirectX shaders (pink text and effects
-  on Metal).
+- **macOS itself**: BepInEx 5.4.23.5 can't patch arm64 code, UnboundLib calls a Windows-only API at startup,
+  and every mod's asset bundle only contains DirectX shaders (pink text and effects on Metal).
 
 ## What's changed
 
 | Area | Fix |
 |---|---|
 | 12 mods' DLLs | Renamed/removed game members rewritten (Mono.Cecil IL patches, `tools/compatfix`), ModdingUtils rebuilt from source (`tools/moddingutils`) |
+| BepInEx 5.4.23.5 | Patched to the BepInEx source with [cdobbyn's native arm64 fix](https://github.com/BepInEx/BepInEx/pull/1402) (merged, not released yet; `tools/bepinex-arm64`), plus UnityDoorstop 4.6.0 |
 | UnboundLib 4.2.5 | Windows-only `user32.dll` call removed, so it starts on Mac (`tools/unboundlib-macfix`) |
 | MapsExtended | Odin Serializer stand-in built from the Apache-2.0 open-source version |
 | Mac Compat Fixes plugin (`src/MacCompatFixes`) | Mod shaders swapped to the game's Metal copies or rebuilt; card names, card-bar hover, toggle-cards menu art; Cosmic Rounds runtime errors; menu layout |

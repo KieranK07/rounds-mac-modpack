@@ -125,6 +125,7 @@ namespace MacCompatFixes
             "willis81808 (ModsPlus), willuwontu (Wacky Map Objects + patches)",
             "BossSloth, TeamDK, Senyksia, Ascyst, RoundsModding (patches)",
             "BepInEx team (BepInEx, ScriptEngine), TeamSirenix (Odin Serializer)",
+            "cdobbyn (native Apple Silicon fix for BepInEx), NeighTools (UnityDoorstop)",
             "Landfall Games (ROUNDS)",
         };
 
