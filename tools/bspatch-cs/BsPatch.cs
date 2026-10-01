@@ -93,7 +93,7 @@ namespace RoundsModpack
 
             while (true)
             {
-                long magic = ((long)Bits(24) << 24) | (long)Bits(24);
+                long magic = Bits(24) * 0x1000000L + Bits(24);   // 48 bits (no | on sign-extended values: a warning)
                 Bits(16); Bits(16);   // block / stream CRC
                 if (magic == 0x177245385090L) break;
                 if (magic != 0x314159265359L) throw Bad("bad block header");

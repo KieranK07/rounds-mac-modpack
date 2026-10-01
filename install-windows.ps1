@@ -22,7 +22,7 @@ function Install-RoundsModpack {
     $ErrorActionPreference = 'Stop'
     $ProgressPreference = 'SilentlyContinue'
     $Repo = "KieranK07/rounds-mac-modpack"
-    $Ref = if ($env:ROUNDS_MODPACK_REF) { $env:ROUNDS_MODPACK_REF } else { "v1.3.1" }
+    $Ref = if ($env:ROUNDS_MODPACK_REF) { $env:ROUNDS_MODPACK_REF } else { "v1.3.2" }
     $AppId = 1557740
     $BepInExUrl = "https://github.com/BepInEx/BepInEx/releases/download/v5.4.23.5/BepInEx_win_x64_5.4.23.5.zip"
     $BepInExSha = "82f9878551030f54657792c0740d9d51a09500eeae1fba21106b0c441e6732c4"
@@ -153,7 +153,7 @@ function Install-RoundsModpack {
 
         Say "Applying fixes (binary patches, each checked before and after)"
         # Windows has no bspatch; this is a small C# one (tools/bspatch-cs).
-        if (-not ('RoundsModpack.BsPatch' -as [type])) { Add-Type -LiteralPath (Join @($Payload, 'tools', 'bspatch-cs', 'BsPatch.cs')) }
+        if (-not ('RoundsModpack.BsPatch' -as [type])) { Add-Type -IgnoreWarnings -LiteralPath (Join @($Payload, 'tools', 'bspatch-cs', 'BsPatch.cs')) }
         foreach ($line in Get-Content -LiteralPath (Join @($Payload, 'manifest', 'patches.tsv'))) {
             if (-not $line.Trim()) { continue }
             $rel, $before, $after, $patch = $line -split "`t"
