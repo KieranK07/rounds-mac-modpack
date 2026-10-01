@@ -29,3 +29,7 @@ leaving no player spawn and no cards. Copy ROUNDS-modfix/BepInEx.cfg to <game>/B
   or rebuilt. Fix runs on every AssetBundle.LoadFrom* and on new Material(...) — no first-frame pink.
   Card bar: remembers each button's card and re-resolves a destroyed CardInfo on hover (skips instead of throwing).
   Each Harmony patch class is applied in isolation so one failure can't disable the plugin.
+- 1.8.2: first card pick of a game didn't show (any platform). UnboundLib 4.2.5's stats panel calls ResetStats on
+  components made with `new`; other mods' ResetStats patches call GetComponent there and throw, which escaped the
+  panel's static constructor and RoundsWithFriends' DoStartGame. ResetStats failures on such detached components are
+  now ignored (finalizer), and any panel error is logged instead of stopping the pick (StatsViewerFixes.cs).
