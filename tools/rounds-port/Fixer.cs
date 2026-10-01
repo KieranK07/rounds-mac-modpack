@@ -158,6 +158,12 @@ sealed class Fixer
                 else if (ins.Operand is MethodReference mr && (ins.OpCode == OpCodes.Call || ins.OpCode == OpCodes.Callvirt) && mr.DeclaringType.Scope.Name.StartsWith("Assembly-CSharp"))
                 {
                     var dt = mr.DeclaringType.FullName;
+                    if (dt == "PlayerManager" && mr.Name == "AddPlayerDiedAction" && mr.Parameters.Count == 1 && mr.Resolve() == null)
+                    {
+                        ReplaceWith(il, ins, Instruction.Create(OpCodes.Call, Helper("AddPlayerDiedAction")));
+                        Count("PlayerManager.AddPlayerDiedAction(...) -> PlayerDiedAction += ...");
+                        continue;
+                    }
                     if ((dt is "Damagable" or "HealthHandler" or "DamageOverTime") && mr.Name is "CallTakeDamage" or "TakeDamage" or "DoDamage" or "TakeDamageOverTime"
                         && mr.Resolve() == null)
                     {

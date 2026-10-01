@@ -95,6 +95,13 @@ public static class __RoundsCompat
         return false;
     }
 
+    // PlayerManager.AddPlayerDiedAction(action) was removed; PlayerDiedAction is a public field now.
+    public static void AddPlayerDiedAction(PlayerManager manager, Action<Player, int> action)
+    {
+        if ((object)manager == null) throw new NullReferenceException();
+        manager.PlayerDiedAction = (Action<Player, int>)Delegate.Combine(manager.PlayerDiedAction, action);
+    }
+
     // GrowPatch FixedTrickShot: trail is now IScaleTrailFromDamage (pooled ScaleTrailFromDamagePooled); lazy lookup.
     public static IScaleTrailFromDamage FindTrail(Component self, IScaleTrailFromDamage current)
     {

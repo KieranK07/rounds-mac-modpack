@@ -46,6 +46,8 @@ static class Known
                 return new(Fix.Manual, "method", what, "now returns FriendlyFoe.PoolableWrapper[] (pooled; entries can be null, use .Instance). Don't Destroy() pooled objects");
             if (type == "CardBar" && name == "OnHover")
                 return new(Fix.Manual, "method", what, "OnHover(CardInfo, Vector3) is gone; hover now takes a CardBarButton. See docs/MAPPING.md section 4");
+            if (type == "PlayerManager" && name == "AddPlayerDiedAction")
+                return new(Fix.Auto, "method", what, "removed; PlayerDiedAction is a public field now. fix adds your handler to it");
             if (type == "CardChoice" && name == "GetRanomCard")
                 return new(Fix.Auto, "method", what, "the typo was fixed: GetRandomCard");
         }

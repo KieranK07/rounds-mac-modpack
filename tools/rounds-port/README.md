@@ -41,6 +41,7 @@ You can pass several DLLs or a whole folder. Exit code: 0 nothing to do, 1 only 
 | `CardInfo.cardName` reads | private, and empty for UnboundLib 4 cards | a helper that falls back to the localized key, `CardName`, then the GameObject name |
 | `CallTakeDamage`, `TakeDamage`, `DoDamage`, `TakeDamageOverTime` | gained a trailing `HealthHandler.DamageSource` | passes `DamageSource.Player` |
 | Photon RPCs to those methods (`RPCA_SendTakeDamage`) | one more argument | appends `DamageSource.Player` (PUN drops RPCs with the wrong argument count) |
+| `PlayerManager.AddPlayerDiedAction(...)` | removed; `PlayerDiedAction` is a public field | adds the handler to the field |
 | `Optionshandler.vol_Master` / `vol_Sfx` | removed | reads the options slider (REVIEW) |
 | `Steamworks.*` in Assembly-CSharp-firstpass | `com.rlabrecque.steamworks.net` | retargets the reference |
 | `UnityEngine.Input` in CoreModule | `UnityEngine.InputLegacyModule` | retargets the reference |

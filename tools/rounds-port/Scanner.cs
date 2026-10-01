@@ -86,7 +86,7 @@ sealed class Scanner(Game game)
                 foreach (var am in b.Methods.Where(x => x.IsAbstract))
                     if (!all.TakeWhile(x => x != b).Any(x => x.Methods.Any(m => m.Name == am.Name && !m.IsAbstract && SigEq(m, am))))
                         add(new Issue(Fix.Manual, "override", $"{t.FullName} doesn't implement {am.FullName}",
-                            "TypeLoadException when the type loads. The base method's signature changed (damage methods gained a HealthHandler.DamageSource parameter); update your override"));
+                            "TypeLoadException when the type loads: the base method changed (e.g. the damage methods gained a HealthHandler.DamageSource parameter). Update your override"));
         foreach (var m in t.Methods.Where(m => m.IsVirtual && !m.IsNewSlot && !m.IsAbstract))
         {
             bool overrides = chain.Any(b => b.Methods.Any(x => x.IsVirtual && x.Name == m.Name && SigEq(m, x)));
@@ -339,11 +339,14 @@ sealed class Scanner(Game game)
             if (resolver.Get(an) is AssemblyDefinition a && AllTypes(a.MainModule).Any(t => Has(t, name, kind))) return true;
         return false;
     }
+    // Types that mention a generic parameter (T, CardDetails<T>...) match anything: an override in a closed subclass
+    // of a generic base has the substituted type.
     static bool SigEq(MethodDefinition a, MethodDefinition b)
     {
+        static bool Same(TypeReference x, TypeReference y) => x.FullName == y.FullName || x.ContainsGenericParameter || y.ContainsGenericParameter;
         if (a.Parameters.Count != b.Parameters.Count) return false;
-        for (int i = 0; i < a.Parameters.Count; i++) if (a.Parameters[i].ParameterType.FullName != b.Parameters[i].ParameterType.FullName) return false;
-        return a.ReturnType.FullName == b.ReturnType.FullName || a.ReturnType.IsGenericParameter || b.ReturnType.IsGenericParameter;
+        for (int i = 0; i < a.Parameters.Count; i++) if (!Same(a.Parameters[i].ParameterType, b.Parameters[i].ParameterType)) return false;
+        return Same(a.ReturnType, b.ReturnType);
     }
     static bool ArgsMatch(MethodDefinition m, List<TypeReference>? args)
     {
