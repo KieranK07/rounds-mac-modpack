@@ -46,6 +46,7 @@ Two things broke modded ROUNDS on Mac:
 | UnboundLib 4.2.5 | Windows-only `user32.dll` call removed, so it starts on Mac (`tools/unboundlib-macfix`) |
 | MapsExtended | Odin Serializer stand-in built from the Apache-2.0 open-source version |
 | Mac Compat Fixes plugin (`src/MacCompatFixes`) | Mod shaders swapped to the game's Metal copies or rebuilt; card names, card-bar hover, toggle-cards menu art; Cosmic Rounds runtime errors; menu layout |
+| Hot Reload plugin (`src/HotReload`) | Swaps mods in `BepInEx/scripts` while the game runs and removes what the old copy left behind; replaces BepInEx ScriptEngine ([`docs/HOTRELOAD.md`](docs/HOTRELOAD.md)) |
 
 Full details: [`docs/`](docs/). Each patch's before/after hash is in [`manifest/patches.tsv`](manifest/patches.tsv).
 
@@ -68,10 +69,12 @@ Windows, macOS and Linux and is how most of the mods here were ported.
 cd tools/rounds-port && dotnet run -c Release -- scan path/to/MyMod.dll
 ```
 
+`rounds-port hot MyMod.dll` ports it and swaps it into the running game.
+
 ## Developing
 
-`MacCompatFixes` loads through BepInEx's ScriptEngine from `BepInEx/scripts`, so it hot-reloads: rebuild it while
-the game is running and the new version is live a second later (or press **F6**).
+Mods in `BepInEx/scripts`, including `MacCompatFixes`, load through [Hot Reload](docs/HOTRELOAD.md): rebuild one
+while the game is running and the new version is live a second later (**F6** reloads them all).
 
 ```sh
 cd src/MacCompatFixes && dotnet build -c Release -p:Deploy=true

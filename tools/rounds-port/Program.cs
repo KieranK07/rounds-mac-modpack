@@ -6,20 +6,22 @@ rounds-port: port ROUNDS mods to the current game build (the 2025 update)
 
   rounds-port scan <mod.dll | folder>...   list everything that no longer matches the game
   rounds-port fix  <mod.dll | folder>...   rewrite what it can, save fixed copies, list what's left
+  rounds-port hot  <mod.dll | folder>...   port it and swap it into the running game (needs the Hot Reload plugin)
 
 options
   --game <dir>     ROUNDS folder (found through Steam if you leave it out)
   --ref <dir>      another folder of DLLs your mod uses, e.g. Bknibb's UnboundLib 4 (repeatable)
   -o, --out <dir>  where fix saves mods (default: a "ported" folder next to each mod)
-  --pdb            fix also writes a .pdb (BepInEx ScriptEngine needs one to hot-load a mod)
+  --pdb            fix also writes a .pdb (line numbers in error stack traces)
+  --watch          hot: keep watching the DLL and swap in every rebuild
 
 Each problem is marked AUTO (fix handles it), REVIEW (fix handles it, check the result) or MANUAL (change your source).
 Exit code: 0 nothing left to do, 1 only AUTO/REVIEW items, 2 MANUAL items remain, 3 error.
 """;
 
-if (args.Length == 0 || args[0] is "-h" or "--help" || args[0] is not ("scan" or "fix")) { Console.Write(Usage); return args.Length == 0 || args[0] is "-h" or "--help" ? 0 : 3; }
+if (args.Length == 0 || args[0] is "-h" or "--help" || args[0] is not ("scan" or "fix" or "hot")) { Console.Write(Usage); return args.Length == 0 || args[0] is "-h" or "--help" ? 0 : 3; }
 bool fix = args[0] == "fix";
-string? gameDir = null, outDir = null; bool pdb = false;
+string? gameDir = null, outDir = null; bool pdb = false, watch = false;
 var refs = new List<string>(); var inputs = new List<string>();
 for (int i = 1; i < args.Length; i++)
 {
@@ -32,6 +34,7 @@ for (int i = 1; i < args.Length; i++)
             case "--ref": refs.Add(Next()); break;
             case "-o" or "--out": outDir = Next(); break;
             case "--pdb": pdb = true; break;
+            case "--watch": watch = true; break;
             default:
                 if (args[i].StartsWith('-')) throw new UserError($"unknown option {args[i]}");
                 inputs.Add(args[i]); break;
@@ -46,9 +49,10 @@ try
     var game = new Game(gameDir, refs, inputs);
     Out.Line($"game: {game.Dir}");
     Out.Line($"UnboundLib: {game.UnboundLib ?? "not found (add --ref <folder with Bknibb's UnboundLib 4>)"}");
+    if (args[0] == "hot") return Hot.Run(game, inputs, watch);
     var scanner = new Scanner(game);
     int worst = 0;
-    foreach (var dll in Expand(inputs))
+    foreach (var dll in Program.Expand(inputs))
     {
         Out.Line("");
         var rp = new ReaderParameters { AssemblyResolver = game.Resolver, ReadingMode = ReadingMode.Immediate, InMemory = true };
@@ -86,8 +90,10 @@ catch (UserError e) { Out.Error(e.Message); return 3; }
 
 static int Grade(List<Issue> issues) => issues.Count == 0 ? 0 : issues.Any(i => i.Fix == Fix.Manual) ? 2 : 1;
 
+static partial class Program
+{
 // Files as given; folders: every DLL inside that references the game (skips libraries like Odin or MMHOOK).
-static IEnumerable<string> Expand(List<string> inputs)
+public static IEnumerable<string> Expand(List<string> inputs)
 {
     foreach (var i in inputs)
     {
@@ -102,6 +108,7 @@ static IEnumerable<string> Expand(List<string> inputs)
         }
     }
 }
+}
 
 static class Out
 {
@@ -109,6 +116,7 @@ static class Out
     static string C(string code, string s) => Color ? $"\u001b[{code}m{s}\u001b[0m" : s;
     public static void Line(string s) => Console.WriteLine(s);
     public static void Error(string s) => Console.Error.WriteLine(C("31", "error: ") + s);
+    public static void Warn(string s) => Console.Error.WriteLine(C("33", "warning: ") + s);
 
     static string Tag(Fix f) => f switch { Fix.Auto => C("32", "AUTO  "), Fix.Review => C("33", "REVIEW"), _ => C("31", "MANUAL") };
 

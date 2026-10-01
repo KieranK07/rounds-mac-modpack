@@ -8,8 +8,8 @@ using UnityEngine.SceneManagement;
 namespace MacCompatFixes
 {
     // Small fixes for running the (ported) mod stack on the current ROUNDS build, on macOS.
-    // Loaded by ScriptEngine from BepInEx/scripts, so it can be hot-reloaded: every load must be able to
-    // tear itself down completely in OnDestroy.
+    // Loaded by Hot Reload from BepInEx/scripts, so it can be swapped while the game runs: every load must be able
+    // to tear itself down completely in OnDestroy.
     [BepInPlugin("kieran.rounds.maccompatfixes", "Mac Compat Fixes", "1.8.1")]
     [BepInDependency("com.willis.rounds.unbound")]
     [BepInDependency("pykess.rounds.plugins.moddingutils", BepInDependency.DependencyFlags.SoftDependency)]
@@ -27,8 +27,8 @@ namespace MacCompatFixes
 
         private void Awake()
         {
-            // Unique id per load: ScriptEngine loads the new copy before destroying the old one, and the old
-            // copy's UnpatchSelf must not remove the new copy's patches.
+            // Unique id per load: an old copy's UnpatchSelf must never remove a newer copy's patches, whichever
+            // order a loader destroys the old copy and starts the new one in.
             harmony = new Harmony("kieran.rounds.maccompatfixes." + Guid.NewGuid().ToString("N"));
             foreach (var t in typeof(Plugin).Assembly.GetTypes())
             {

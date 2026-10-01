@@ -9,7 +9,7 @@
 #      and --rosetta use the unpatched release, under Rosetta 2 on Apple Silicon
 #   3. downloads every mod from its original source (Thunderstore / the author's GitHub) and checks its SHA-256
 #   4. applies this repo's binary patches (fixes for the 2025 ROUNDS update + macOS) and checks the result
-#   5. adds the Mac Compat Fixes plugin, configs, and the Steam launch option, then starts the game
+#   5. adds the Mac Compat Fixes and Hot Reload plugins, configs, and the Steam launch option, then starts the game
 #
 # Options: --no-steam-config   don't touch Steam's launch options (you paste it yourself)
 #          --no-launch         don't start the game at the end
@@ -18,12 +18,10 @@
 set -euo pipefail
 
 REPO="KieranK07/rounds-mac-modpack"
-REF="${ROUNDS_MODPACK_REF:-v1.1.0}"
+REF="${ROUNDS_MODPACK_REF:-v1.2.0}"
 APPID=1557740
 BEPINEX_URL="https://github.com/BepInEx/BepInEx/releases/download/v5.4.23.5/BepInEx_macos_universal_5.4.23.5.zip"
 BEPINEX_SHA="01c2ae782eb016dfd6c345a18dbd2dcafffb3d9d318449d6486689f426b4a323"
-SCRIPTENGINE_URL="https://github.com/BepInEx/BepInEx.Debug/releases/download/r11.1/ScriptEngine_r11.1.zip"
-SCRIPTENGINE_SHA="7f4a385f329f9290ab8ab00d48c14a46ed61964b61a2922354e09e0dbebb339b"
 # Native arm64 needs doorstop_jit_memcpy, new in UnityDoorstop 4.6.0 (only a CI build so far). If this file has
 # changed upstream, the installer falls back to Rosetta.
 DOORSTOP_URL="https://github.com/NeighTools/UnityDoorstop/releases/download/ci/doorstop_macos_release_4.6.0.zip"
@@ -150,8 +148,9 @@ chmod +x "$G/run_bepinex.sh"
 mkdir -p "$G/BepInEx/plugins" "$G/BepInEx/scripts" "$G/BepInEx/config"
 cp "$PAYLOAD"/config/*.cfg "$G/BepInEx/config/"
 
-fetch "$SCRIPTENGINE_URL" "$WORK/scriptengine.zip" "$SCRIPTENGINE_SHA"
-ditto -x -k "$WORK/scriptengine.zip" "$WORK/se" && cp "$WORK/se/BepInEx/plugins/ScriptEngine.dll" "$G/BepInEx/plugins/"
+# Hot Reload (this repo, MIT): loads BepInEx/scripts and swaps mods in and out while the game runs
+mkdir -p "$G/BepInEx/plugins/HotReload"
+cp "$PAYLOAD"/bundled/HotReload.dll "$PAYLOAD"/bundled/HotReload.pdb "$G/BepInEx/plugins/HotReload/"
 
 # ---------------------------------------------------------------- mods from their original sources
 say "Downloading mods from their authors (Thunderstore / GitHub)"
@@ -181,7 +180,7 @@ done < "$PAYLOAD/manifest/patches.tsv"
 
 # Odin Serializer stand-ins for MapsExtended (built from TeamSirenix/odin-serializer, Apache-2.0)
 cp "$PAYLOAD"/bundled/odin/* "$P/olavim-MapsExtended-1.4.2/"
-# Mac Compat Fixes (this repo, MIT) - loaded by ScriptEngine so it can be hot-reloaded
+# Mac Compat Fixes (this repo, MIT) - loaded by Hot Reload, so it can be swapped while the game runs
 cp "$PAYLOAD"/bundled/MacCompatFixes.dll "$PAYLOAD"/bundled/MacCompatFixes.pdb "$G/BepInEx/scripts/"
 xattr -dr com.apple.quarantine "$G" 2>/dev/null || true
 
@@ -228,6 +227,7 @@ say "Done! ROUNDS is modded."
 if [ "$NATIVE" = 1 ]; then note "Runs natively on Apple Silicon. To use Rosetta instead, run this again with --rosetta."
 elif [ "$APPLE_SILICON" = 1 ]; then note "Runs under Rosetta."; fi
 note "Mods: 31 from Thunderstore/GitHub + Mac Compat Fixes. Credits: in-game CREDITS > KIERAN'S UNBOUND, and the README."
+note "Hot Reload: mods in BepInEx/scripts swap in and out while the game runs (F6 reloads them all)."
 note "Uninstall: Steam > ROUNDS > Properties > clear Launch Options (or delete the BepInEx folder)."
 if [ "$LAUNCH" = 1 ]; then
   sleep 8; open "steam://rungameid/$APPID"

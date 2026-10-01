@@ -30,8 +30,34 @@ Mods are checked against UnboundLib 4 ([Bknibb's port](https://github.com/Bknibb
 the current build). Put it in `BepInEx/plugins` or pass `--ref <folder>`. The report says which UnboundLib it used.
 
 Options: `--game <dir>`, `--ref <dir>` (repeatable, extra DLLs your mod uses), `-o <dir>` (where `fix` saves),
-`--pdb` (also write a `.pdb`, which BepInEx's ScriptEngine needs to hot-load a mod from `BepInEx/scripts`).
+`--pdb` (also write a `.pdb`, for line numbers in error stack traces).
 You can pass several DLLs or a whole folder. Exit code: 0 nothing to do, 1 only AUTO/REVIEW items, 2 MANUAL items.
+
+## Hot reload: swap a mod into the running game
+
+```sh
+rounds-port hot MyMod.dll            # port it (if needed) and swap it into the running game
+rounds-port hot bin/Debug/MyMod.dll --watch   # ...and again every time you rebuild
+```
+
+This needs the **Hot Reload** plugin ([`src/HotReload`](../../src/HotReload), installed by this repo's installer) in
+`BepInEx/plugins`. It replaces BepInEx's ScriptEngine: mods in `BepInEx/scripts` load at startup like normal
+plugins, and when one changes only that mod (and mods that depend on it) is reloaded, about a second later.
+F6 reloads everything. How it works and what it can't undo: [`docs/HOTRELOAD.md`](../../docs/HOTRELOAD.md).
+
+When a mod unloads, Hot Reload removes what the old copy left behind, so the new copy starts clean:
+
+- its Harmony patches (whatever Harmony ID it used) and MonoMod hooks (`On.X.Y +=`, `Hook`, `ILHook`)
+- its cards: out of UnboundLib, the toggle-cards menu, the card pool and the library registries
+- its menus, game-mode hooks and other callbacks it registered, and handlers on game and Unity events
+- its components, and the asset bundles it opened (so the new copy can open them again)
+
+`hot` also moves any copy of the same mod out of `BepInEx/plugins` (into `BepInEx/plugins-parked-by-rounds-port`),
+since that copy would load too. If the game was started with that copy, restart once.
+
+Limits: players keep the cards they already have until the next round. A mod loaded for the first time while the
+game is running can't add a new card rarity (RarityLib only accepts those at startup): put it in `BepInEx/scripts`
+and restart once, after that every reload works.
 
 ## What `fix` handles
 
@@ -73,6 +99,8 @@ Tested on the 12 mods this repo ports (in `docs/`):
 - for the other 4 (ModdingUtils, MapsExtended, GrowPatch, Performance Improvements), it fixes the mechanical parts
   and flags what needed hand-written changes
 - scanning the 28 game-facing DLLs of the working pack finds 2 REVIEW notes, both harmless
+- 3 Thunderstore mods outside this pack (Cards+, KeysCards, ZOMC): fixed with no MANUAL items and load in game;
+  KeysCards and ZOMC also swap in and out of the running game
 
 It can't see everything: behaviour changes that still compile and resolve (e.g. pooled objects reused while you
 hold a reference) only show up in game.

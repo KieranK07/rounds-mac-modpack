@@ -503,7 +503,7 @@
     "thunderstore": null,
     "source": "https://github.com/BepInEx/BepInEx.Debug",
     "license": "LGPL-3.0",
-    "description": "Hot-reloads plugins from BepInEx/scripts at runtime."
+    "description": "Hot-reloads plugins from BepInEx/scripts; this repo's Hot Reload plugin is modelled on it. Not shipped."
   },
   {
     "id": "harmonyx",
