@@ -1,0 +1,578 @@
+[
+  {
+    "id": "rounds",
+    "name": "ROUNDS",
+    "version": null,
+    "group": "Game",
+    "authors": [
+      "Landfall Games (developer & publisher)",
+      "Wilhelm Nylund (game design, art, programming)",
+      "Pontus Ullbors (card, concept & store art)",
+      "Karl Flodin (music)",
+      "Vile Hartman & Victor Engström (sound)",
+      "Natalia Martinsson (face customizer art)"
+    ],
+    "thunderstore": null,
+    "source": "https://store.steampowered.com/app/1557740/ROUNDS/",
+    "license": "proprietary",
+    "description": "1v1 physics card-shooter. Not included; you need your own Steam copy.",
+    "notes": "Full credits: https://landfall.se/rounds-credits"
+  },
+  {
+    "id": "Bknibb-UnboundLib",
+    "name": "UnboundLib (Bknibb fork)",
+    "version": "4.2.5",
+    "group": "Core libraries",
+    "authors": [
+      "Bknibb (fork maintainer; ROUNDS v1.1.2 update)",
+      "willis81808 / Willis (creator)",
+      "olavim / Tilastokeskus",
+      "Pykess (GitHub: pdcook)",
+      "BossSloth (Boss Sloth Inc.)",
+      "willuwontu",
+      "otDan",
+      "Ascyst",
+      "Root (GitHub: Tess-y, System-of-Root)",
+      "scottfp"
+    ],
+    "thunderstore": null,
+    "source": "https://github.com/Bknibb/UnboundLib",
+    "license": "none found",
+    "description": "Core modding library: networking, custom cards/maps, game-mode framework, mod menus.",
+    "notes": "GitHub release v4.2.5 (also ships Octokit.dll and MMHOOK_Assembly-CSharp.dll). Fork of https://github.com/Rounds-Modding/UnboundLib (no license file either); original Thunderstore package: https://thunderstore.io/c/rounds/p/willis81808/UnboundLib/. An unlisted Bknibb-UnboundLib_Bknibb 4.0.6 upload exists on Thunderstore but is not in the ROUNDS community listing (unverified why). Author list = the in-mod UNBOUND credits plus GitHub contributors."
+  },
+  {
+    "id": "Bknibb-RoundsWithFriends",
+    "name": "RoundsWithFriends (Bknibb fork)",
+    "version": "3.0.10",
+    "group": "Core libraries",
+    "authors": [
+      "Bknibb (fork maintainer; ROUNDS v1.1.2 update)",
+      "olavim / Tilastokeskus (creator)",
+      "Pykess (GitHub: pdcook)",
+      "BossSloth",
+      "willuwontu"
+    ],
+    "thunderstore": null,
+    "source": "https://github.com/Bknibb/RoundsWithFriends",
+    "license": "GPL-3.0",
+    "description": "Multiplayer extension: more than two players, Deathmatch and Team Deathmatch modes.",
+    "notes": "GitHub release v3.0.10. Fork of https://github.com/olavim/RoundsWithFriends (GPL-3.0); original Thunderstore package: https://thunderstore.io/c/rounds/p/olavim/RoundsWithFriends/."
+  },
+  {
+    "id": "olavim-MapsExtended",
+    "name": "MapsExtended",
+    "version": "1.4.2",
+    "group": "Core libraries",
+    "authors": [
+      "olavim (Olavi Mustanoja, aka Tilastokeskus)",
+      "Ascyst",
+      "BossSloth",
+      "Root (GitHub: Tess-y)"
+    ],
+    "thunderstore": "https://thunderstore.io/c/rounds/p/olavim/MapsExtended/",
+    "source": "https://github.com/olavim/RoundsMapsExtended",
+    "license": "MIT",
+    "description": "Custom map framework and in-game map editor.",
+    "notes": "LICENSE file = MIT (project, (c) 2021 Olavi Mustanoja) plus BSD-3-Clause for bundled NetTopologySuite; GitHub reports NOASSERTION because of the combined file."
+  },
+  {
+    "id": "Pykess-ModdingUtils",
+    "name": "ModdingUtils",
+    "version": "0.4.8",
+    "group": "Core libraries",
+    "authors": [
+      "Pykess (GitHub: pdcook)",
+      "willuwontu",
+      "olavim",
+      "Root (GitHub: Tess-y)",
+      "BossSloth"
+    ],
+    "thunderstore": "https://thunderstore.io/c/rounds/p/Pykess/ModdingUtils/",
+    "source": "https://github.com/pdcook/ModdingUtils",
+    "license": "GPL-3.0",
+    "description": "Shared utilities that many card and effect mods depend on."
+  },
+  {
+    "id": "willis81808-ModsPlus",
+    "name": "ModsPlus",
+    "version": "1.6.2",
+    "group": "Core libraries",
+    "authors": [
+      "willis81808 (Reid Willis)"
+    ],
+    "thunderstore": "https://thunderstore.io/c/rounds/p/willis81808/ModsPlus/",
+    "source": "https://github.com/willis81808/ModsPlus",
+    "license": "MIT",
+    "description": "Willis' modding helper library."
+  },
+  {
+    "id": "Root-RarityLib",
+    "name": "RarityLib",
+    "version": "1.3.0",
+    "group": "Core libraries",
+    "authors": [
+      "Root (GitHub: Tess-y)"
+    ],
+    "thunderstore": "https://thunderstore.io/c/rounds/p/Root/RarityLib/",
+    "source": "https://github.com/Tess-y/RarityLib",
+    "license": "Unlicense",
+    "description": "Library for adding custom card rarities."
+  },
+  {
+    "id": "Root-CardThemeLib",
+    "name": "CardThemeLib",
+    "version": "1.1.7",
+    "group": "Core libraries",
+    "authors": [
+      "Root (GitHub: Tess-y)"
+    ],
+    "thunderstore": "https://thunderstore.io/c/rounds/p/Root/CardThemeLib/",
+    "source": "https://github.com/Tess-y/CardThemeLib",
+    "license": "Unlicense",
+    "description": "Library for adding custom card themes."
+  },
+  {
+    "id": "Root-Classes_Manager_Reborn",
+    "name": "Classes Manager Reborn",
+    "version": "1.5.5",
+    "group": "Core libraries",
+    "authors": [
+      "Root (GitHub: Tess-y)",
+      "willuwontu"
+    ],
+    "thunderstore": "https://thunderstore.io/c/rounds/p/Root/Classes_Manager_Reborn/",
+    "source": "https://github.com/Tess-y/ClassesManagerReborn",
+    "license": "Unlicense",
+    "description": "Class system for card mods; remake of the original Classes Manager."
+  },
+  {
+    "id": "XAngelMoonX-CR",
+    "name": "Cosmic Rounds (CR)",
+    "version": "2.7.0",
+    "group": "Content mods",
+    "authors": [
+      "XAngelMoonX"
+    ],
+    "thunderstore": "https://thunderstore.io/c/rounds/p/XAngelMoonX/CR/",
+    "source": "https://github.com/XAngelMoonX/CosmicRounds",
+    "license": "none found",
+    "description": "Adds 100 new cards.",
+    "notes": "Linked repo holds source for v1.7.7 only; source for 2.7.0 not found (unverified). Thunderstore manifest has no website_url."
+  },
+  {
+    "id": "Ascyst-SetRounds",
+    "name": "SetRounds",
+    "version": "1.2.4",
+    "group": "Content mods",
+    "authors": [
+      "Ascyst",
+      "Pykess (GitHub: pdcook; sync fixes)"
+    ],
+    "thunderstore": "https://thunderstore.io/c/rounds/p/Ascyst/SetRounds/",
+    "source": "https://github.com/Ascyst/SetRounds",
+    "license": "none found",
+    "description": "Set rounds per game and points per round from Mod Options."
+  },
+  {
+    "id": "willuwontu-WillsWackyMapObjects",
+    "name": "Will's Wacky Map Objects",
+    "version": "1.2.4",
+    "group": "Content mods",
+    "authors": [
+      "willuwontu"
+    ],
+    "thunderstore": "https://thunderstore.io/c/rounds/p/willuwontu/WillsWackyMapObjects/",
+    "source": "https://github.com/willuwontu/WillsWackyMapObjects",
+    "license": "none found",
+    "description": "Adds extra objects to the MapsExtended map editor.",
+    "notes": "Marked deprecated on Thunderstore."
+  },
+  {
+    "id": "BossSloth-CardBarPatch",
+    "name": "CardBarPatch",
+    "version": "2.1.1",
+    "group": "Content mods",
+    "authors": [
+      "BossSloth (GitHub: BossSloth, formerly tddebart)"
+    ],
+    "thunderstore": "https://thunderstore.io/c/rounds/p/BossSloth/CardBarPatch/",
+    "source": "https://github.com/BossSloth/BossSlothsMods",
+    "license": "GPL-3.0",
+    "description": "Customize the in-game card bar.",
+    "notes": "Source is the CardBarPatch folder of the BossSlothsMods repo (manifest still links the old tddebart URL, which redirects)."
+  },
+  {
+    "id": "RoundsModding-AllThePatch",
+    "name": "AllThePatch",
+    "version": "1.0.0",
+    "group": "Patches & fixes",
+    "authors": [
+      "RoundsModding (Thunderstore team; individuals unverified)"
+    ],
+    "thunderstore": "https://thunderstore.io/c/rounds/p/RoundsModding/AllThePatch/",
+    "source": null,
+    "license": "none found",
+    "description": "Modpack bundling the fundamental vanilla bug-fix patches.",
+    "notes": "Metadata-only package (manifest, README, icon); contains no code."
+  },
+  {
+    "id": "Pykess-CardChoiceSpawnUniqueCardPatch",
+    "name": "CardChoiceSpawnUniqueCardPatch",
+    "version": "0.1.10",
+    "group": "Patches & fixes",
+    "authors": [
+      "Pykess (GitHub: pdcook)",
+      "willuwontu",
+      "Root (GitHub: Tess-y, System-of-Root)",
+      "olavim"
+    ],
+    "thunderstore": "https://thunderstore.io/c/rounds/p/Pykess/CardChoiceSpawnUniqueCardPatch/",
+    "source": "https://github.com/Rounds-Modding/CardChoiceSpawnUniqueCardPatch",
+    "license": "none found",
+    "description": "Fixes broken logic in the vanilla CardChoice.SpawnUniqueCard method."
+  },
+  {
+    "id": "Pykess-DemonicPactPatch",
+    "name": "DemonicPactPatch",
+    "version": "0.0.0",
+    "group": "Patches & fixes",
+    "authors": [
+      "Pykess (GitHub: pdcook)"
+    ],
+    "thunderstore": "https://thunderstore.io/c/rounds/p/Pykess/DemonicPactPatch/",
+    "source": "https://github.com/Rounds-Modding/DemonicPactPatch",
+    "license": "none found",
+    "description": "Fixes Demonic Pact breaking certain cards after a rematch."
+  },
+  {
+    "id": "Pykess-GunUnblockablePatch",
+    "name": "GunUnblockablePatch",
+    "version": "0.0.0",
+    "group": "Patches & fixes",
+    "authors": [
+      "Pykess (GitHub: pdcook)"
+    ],
+    "thunderstore": "https://thunderstore.io/c/rounds/p/Pykess/GunUnblockablePatch/",
+    "source": "https://github.com/Rounds-Modding/GunUnblockablePatch",
+    "license": "none found",
+    "description": "Makes the gun 'unblockable' property actually work."
+  },
+  {
+    "id": "Pykess-LegRaycastersPatch",
+    "name": "LegRaycastersPatch",
+    "version": "0.0.0",
+    "group": "Patches & fixes",
+    "authors": [
+      "Pykess (GitHub: pdcook)"
+    ],
+    "thunderstore": "https://thunderstore.io/c/rounds/p/Pykess/LegRaycastersPatch/",
+    "source": "https://github.com/Rounds-Modding/LegRaycastersPatch",
+    "license": "none found",
+    "description": "Fixes ground-detection physics issues for small players."
+  },
+  {
+    "id": "Pykess-PlayerJumpPatch",
+    "name": "PlayerJumpPatch",
+    "version": "0.0.2",
+    "group": "Patches & fixes",
+    "authors": [
+      "Pykess (GitHub: pdcook)"
+    ],
+    "thunderstore": "https://thunderstore.io/c/rounds/p/Pykess/PlayerJumpPatch/",
+    "source": "https://github.com/Rounds-Modding/PlayerJumpPatch",
+    "license": "none found",
+    "description": "Fixes the vanilla PlayerJump.Jump method."
+  },
+  {
+    "id": "Pykess-TeleportPatch",
+    "name": "TeleportPatch",
+    "version": "0.0.1",
+    "group": "Patches & fixes",
+    "authors": [
+      "Pykess (GitHub: pdcook)"
+    ],
+    "thunderstore": "https://thunderstore.io/c/rounds/p/Pykess/TeleportPatch/",
+    "source": "https://github.com/pdcook/TeleportPatch",
+    "license": "GPL-3.0",
+    "description": "Fixes several issues with Teleport."
+  },
+  {
+    "id": "Pykess-TemporaryStatsPatch",
+    "name": "TemporaryStatsPatch",
+    "version": "0.0.2",
+    "group": "Patches & fixes",
+    "authors": [
+      "Pykess (GitHub: pdcook)",
+      "Root (GitHub: Tess-y)"
+    ],
+    "thunderstore": "https://thunderstore.io/c/rounds/p/Pykess/TemporaryStatsPatch/",
+    "source": "https://github.com/Rounds-Modding/TemporaryStatsPatch",
+    "license": "none found",
+    "description": "Fixes vanilla handling of temporary stat effects."
+  },
+  {
+    "id": "RoundsModding-Grow_Patch",
+    "name": "Grow Patch",
+    "version": "0.0.0",
+    "group": "Patches & fixes",
+    "authors": [
+      "RoundsModding (Thunderstore team)",
+      "Pykess (GitHub: pdcook)",
+      "willuwontu"
+    ],
+    "thunderstore": "https://thunderstore.io/c/rounds/p/RoundsModding/Grow_Patch/",
+    "source": "https://github.com/Rounds-Modding/GrowPatch",
+    "license": "none found",
+    "description": "Fixes Grow's power depending on framerate."
+  },
+  {
+    "id": "RoundsModding-Performance_Improvements",
+    "name": "Performance Improvements",
+    "version": "0.2.0",
+    "group": "Patches & fixes",
+    "authors": [
+      "RoundsModding (Thunderstore team)",
+      "Pykess (GitHub: pdcook)",
+      "willuwontu",
+      "willis81808"
+    ],
+    "thunderstore": "https://thunderstore.io/c/rounds/p/RoundsModding/Performance_Improvements/",
+    "source": "https://github.com/Rounds-Modding/PerformanceImprovements",
+    "license": "GPL-3.0",
+    "description": "Options to improve performance and stability."
+  },
+  {
+    "id": "Root-GravityPatch",
+    "name": "GravityPatch",
+    "version": "0.0.0",
+    "group": "Patches & fixes",
+    "authors": [
+      "Root (GitHub: Tess-y) (unverified mapping)"
+    ],
+    "thunderstore": "https://thunderstore.io/c/rounds/p/Root/GravityPatch/",
+    "source": null,
+    "license": "none found",
+    "description": "Stops gravity modifications persisting between rounds.",
+    "notes": "No website_url, no README text, no public repo found. Root = Tess-y inferred from Root's other packages."
+  },
+  {
+    "id": "Root-RegenerationPatch",
+    "name": "RegenerationPatch",
+    "version": "0.0.0",
+    "group": "Patches & fixes",
+    "authors": [
+      "Root (GitHub: Tess-y) (unverified mapping)"
+    ],
+    "thunderstore": "https://thunderstore.io/c/rounds/p/Root/RegenerationPatch/",
+    "source": null,
+    "license": "none found",
+    "description": "Stops the regeneration stat persisting between rounds.",
+    "notes": "No website_url, no README text, no public repo found. Root = Tess-y inferred from Root's other packages."
+  },
+  {
+    "id": "Senyksia-ResetAttackCooldownPatch",
+    "name": "ResetAttackCooldownPatch",
+    "version": "1.0.1",
+    "group": "Patches & fixes",
+    "authors": [
+      "Senyksia"
+    ],
+    "thunderstore": "https://thunderstore.io/c/rounds/p/Senyksia/ResetAttackCooldownPatch/",
+    "source": "https://github.com/Senyksia/Rounds-RACP",
+    "license": "none found",
+    "description": "Fixes attack cooldown persisting between rounds, points and death."
+  },
+  {
+    "id": "TeamDK-ZeroGBulletPatch",
+    "name": "ZeroGBulletPatch",
+    "version": "1.1.0",
+    "group": "Patches & fixes",
+    "authors": [
+      "TeamDK (GitHub: dpklinge)"
+    ],
+    "thunderstore": "https://thunderstore.io/c/rounds/p/TeamDK/ZeroGBulletPatch/",
+    "source": "https://github.com/dpklinge/ZeroGBulletPatch",
+    "license": "none found",
+    "description": "Fixes zero-gravity bullet trajectories."
+  },
+  {
+    "id": "willuwontu-AttackLevelPatch",
+    "name": "AttackLevelPatch",
+    "version": "0.0.0",
+    "group": "Patches & fixes",
+    "authors": [
+      "willuwontu"
+    ],
+    "thunderstore": "https://thunderstore.io/c/rounds/p/willuwontu/AttackLevelPatch/",
+    "source": "https://github.com/willuwontu/AttackLevelPatch",
+    "license": "none found",
+    "description": "Fixes attack-level components destroying themselves."
+  },
+  {
+    "id": "willuwontu-BlockForcePatch",
+    "name": "BlockForcePatch",
+    "version": "1.0.1",
+    "group": "Patches & fixes",
+    "authors": [
+      "willuwontu"
+    ],
+    "thunderstore": "https://thunderstore.io/c/rounds/p/willuwontu/BlockForcePatch/",
+    "source": "https://github.com/willuwontu/BlockForcePatch",
+    "license": "none found",
+    "description": "Fixes some block stats not working."
+  },
+  {
+    "id": "willuwontu-RespawnPatch",
+    "name": "RespawnPatch",
+    "version": "1.0.6",
+    "group": "Patches & fixes",
+    "authors": [
+      "willuwontu"
+    ],
+    "thunderstore": "https://thunderstore.io/c/rounds/p/willuwontu/RespawnPatch/",
+    "source": "https://github.com/willuwontu/RespawnPatch",
+    "license": "none found",
+    "description": "Fixes players getting fewer respawns than they should."
+  },
+  {
+    "id": "willuwontu-StopShootingYoureDead",
+    "name": "StopShootingYoureDead",
+    "version": "0.0.0",
+    "group": "Patches & fixes",
+    "authors": [
+      "willuwontu"
+    ],
+    "thunderstore": "https://thunderstore.io/c/rounds/p/willuwontu/StopShootingYoureDead/",
+    "source": null,
+    "license": "GPL-3.0",
+    "description": "Stops bursts and blocks persisting between rounds.",
+    "notes": "License from the GPL-3.0 LICENSE file inside the Thunderstore package. The manifest's website_url (github.com/willuwontu/EvenSpreadPatch) is a different, unlicensed mod; the DLL was built from a 'BurstPatch' repo that is not public (unverified)."
+  },
+  {
+    "id": "bepinex",
+    "name": "BepInEx",
+    "version": "5.4.23.5",
+    "group": "Tooling",
+    "authors": [
+      "BepInEx team (ghorsington, bbepis, ManlyMarco, js6pak, and contributors)"
+    ],
+    "thunderstore": null,
+    "source": "https://github.com/BepInEx/BepInEx",
+    "license": "LGPL-2.1",
+    "description": "Unity plugin/mod loader; downloaded from the upstream GitHub release.",
+    "notes": "ROUNDS Thunderstore pack (older 5.4.1901): https://thunderstore.io/c/rounds/p/BepInEx/BepInExPack_ROUNDS/"
+  },
+  {
+    "id": "bepinex-scriptengine",
+    "name": "BepInEx.Debug ScriptEngine",
+    "version": "r11.1",
+    "group": "Tooling",
+    "authors": [
+      "BepInEx team (ManlyMarco, ghorsington, and contributors)"
+    ],
+    "thunderstore": null,
+    "source": "https://github.com/BepInEx/BepInEx.Debug",
+    "license": "LGPL-3.0",
+    "description": "Hot-reloads plugins from BepInEx/scripts at runtime."
+  },
+  {
+    "id": "harmonyx",
+    "name": "HarmonyX",
+    "version": null,
+    "group": "Tooling",
+    "authors": [
+      "BepInEx team (ghorsington and contributors)",
+      "Andreas Pardeike (pardeike; original Harmony)"
+    ],
+    "thunderstore": null,
+    "source": "https://github.com/BepInEx/HarmonyX",
+    "license": "MIT",
+    "description": "Runtime method patching library (fork of Harmony), bundled with BepInEx.",
+    "notes": "Upstream Harmony: https://github.com/pardeike/Harmony (MIT)."
+  },
+  {
+    "id": "monomod",
+    "name": "MonoMod",
+    "version": null,
+    "group": "Tooling",
+    "authors": [
+      "0x0ade",
+      "nike4613",
+      "and contributors"
+    ],
+    "thunderstore": null,
+    "source": "https://github.com/MonoMod/MonoMod",
+    "license": "MIT",
+    "description": "Runtime detours and HookGen; bundled with BepInEx."
+  },
+  {
+    "id": "mono-cecil",
+    "name": "Mono.Cecil",
+    "version": null,
+    "group": "Tooling",
+    "authors": [
+      "Jb Evain (jbevain)",
+      "and contributors"
+    ],
+    "thunderstore": null,
+    "source": "https://github.com/jbevain/cecil",
+    "license": "MIT",
+    "description": "Reads and writes .NET assemblies; used by our patch tools."
+  },
+  {
+    "id": "odin-serializer",
+    "name": "OdinSerializer (Sirenix.Serialization / Utilities / Config stand-ins)",
+    "version": "commit ba19025",
+    "group": "Tooling",
+    "authors": [
+      "Sirenix IVS (TeamSirenix)"
+    ],
+    "thunderstore": null,
+    "source": "https://github.com/TeamSirenix/odin-serializer",
+    "license": "Apache-2.0",
+    "description": "Open-source serializer we build into the three Sirenix.* DLLs that MapsExtended loads. Shipped by us.",
+    "notes": "Modified per Apache-2.0 s.4(b): namespaces OdinSerializer -> Sirenix.Serialization and OdinSerializer.Utilities -> Sirenix.Utilities, split into three assemblies (v2.1.6.0). Not the proprietary Odin Inspector product."
+  },
+  {
+    "id": "ilspy",
+    "name": "ILSpy",
+    "version": null,
+    "group": "Tooling",
+    "authors": [
+      "ICSharpCode team (siegfriedpammer, dgrunwald, christophwille, and contributors)"
+    ],
+    "thunderstore": null,
+    "source": "https://github.com/icsharpcode/ILSpy",
+    "license": "MIT",
+    "description": ".NET decompiler; used for analysis only, not shipped."
+  },
+  {
+    "id": "octokit",
+    "name": "Octokit.net (Octokit.dll)",
+    "version": null,
+    "group": "Tooling",
+    "authors": [
+      "GitHub / octokit contributors"
+    ],
+    "thunderstore": null,
+    "source": "https://github.com/octokit/octokit.net",
+    "license": "MIT",
+    "description": "GitHub API client; ships inside the UnboundLib release (used for update checks).",
+    "notes": "Downloaded with UnboundLib, not re-uploaded by us."
+  },
+  {
+    "id": "mmhook-assembly-csharp",
+    "name": "MMHOOK_Assembly-CSharp.dll",
+    "version": null,
+    "group": "Tooling",
+    "authors": [
+      "Generated by MonoMod HookGen from ROUNDS' Assembly-CSharp.dll (Landfall Games)"
+    ],
+    "thunderstore": null,
+    "source": null,
+    "license": "none found",
+    "description": "Generated hook stubs for the game's code; ships inside the UnboundLib release.",
+    "notes": "Derived from proprietary game code; downloaded with UnboundLib, never re-uploaded by us."
+  }
+]
