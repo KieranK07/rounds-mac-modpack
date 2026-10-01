@@ -29,7 +29,8 @@ dotnet run -c Release -- scan path/to/MyMod.dll
 Mods are checked against UnboundLib 4 ([Bknibb's port](https://github.com/Bknibb/UnboundLib), the one that works on
 the current build). Put it in `BepInEx/plugins` or pass `--ref <folder>`. The report says which UnboundLib it used.
 
-Options: `--game <dir>`, `--ref <dir>` (repeatable, extra DLLs your mod uses), `-o <dir>` (where `fix` saves).
+Options: `--game <dir>`, `--ref <dir>` (repeatable, extra DLLs your mod uses), `-o <dir>` (where `fix` saves),
+`--pdb` (also write a `.pdb`, which BepInEx's ScriptEngine needs to hot-load a mod from `BepInEx/scripts`).
 You can pass several DLLs or a whole folder. Exit code: 0 nothing to do, 1 only AUTO/REVIEW items, 2 MANUAL items.
 
 ## What `fix` handles

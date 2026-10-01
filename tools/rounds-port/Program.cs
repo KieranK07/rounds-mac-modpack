@@ -11,6 +11,7 @@ options
   --game <dir>     ROUNDS folder (found through Steam if you leave it out)
   --ref <dir>      another folder of DLLs your mod uses, e.g. Bknibb's UnboundLib 4 (repeatable)
   -o, --out <dir>  where fix saves mods (default: a "ported" folder next to each mod)
+  --pdb            fix also writes a .pdb (BepInEx ScriptEngine needs one to hot-load a mod)
 
 Each problem is marked AUTO (fix handles it), REVIEW (fix handles it, check the result) or MANUAL (change your source).
 Exit code: 0 nothing left to do, 1 only AUTO/REVIEW items, 2 MANUAL items remain, 3 error.
@@ -18,7 +19,7 @@ Exit code: 0 nothing left to do, 1 only AUTO/REVIEW items, 2 MANUAL items remain
 
 if (args.Length == 0 || args[0] is "-h" or "--help" || args[0] is not ("scan" or "fix")) { Console.Write(Usage); return args.Length == 0 || args[0] is "-h" or "--help" ? 0 : 3; }
 bool fix = args[0] == "fix";
-string? gameDir = null, outDir = null;
+string? gameDir = null, outDir = null; bool pdb = false;
 var refs = new List<string>(); var inputs = new List<string>();
 for (int i = 1; i < args.Length; i++)
 {
@@ -30,6 +31,7 @@ for (int i = 1; i < args.Length; i++)
             case "--game": gameDir = Next(); break;
             case "--ref": refs.Add(Next()); break;
             case "-o" or "--out": outDir = Next(); break;
+            case "--pdb": pdb = true; break;
             default:
                 if (args[i].StartsWith('-')) throw new UserError($"unknown option {args[i]}");
                 inputs.Add(args[i]); break;
@@ -72,7 +74,8 @@ try
         }
         var dest = Path.Combine(outDir ?? Path.Combine(Path.GetDirectoryName(Path.GetFullPath(dll))!, "ported"), Path.GetFileName(dll));
         Directory.CreateDirectory(Path.GetDirectoryName(dest)!);
-        module.Write(dest);
+        if (pdb) module.Write(dest, new WriterParameters { WriteSymbols = true, SymbolWriterProvider = new Mono.Cecil.Cil.PortablePdbWriterProvider() });
+        else module.Write(dest);
         var left = scanner.Scan(ModuleDefinition.ReadModule(dest, rp));
         Out.Fixed(Path.GetFileName(dll), dest, fixer.Changes, fixer.Notes, issues.Count, left);
         worst = Math.Max(worst, Grade(left));
