@@ -25,7 +25,7 @@ Everyone you play with needs the same setup, on the current ROUNDS build (Steam 
 **None**, not `old-rounds-for-mods`).
 
 **Status:** tested on an Apple M4, macOS 27.2, both native and under Rosetta. Intel Macs should work but are
-untested. Windows: tested on Windows 11 with PowerShell 5.1.
+untested. Windows: tested on a Windows PC with Windows PowerShell 5.1.
 Online through RoundsWithFriends: tested with two Macs and a Windows PC in one lobby.
 
 Running it again is safe: it checks every file against the pack, adds what's missing and updates what it installed
