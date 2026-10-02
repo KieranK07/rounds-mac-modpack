@@ -25,9 +25,8 @@ Everyone you play with needs the same setup, on the current ROUNDS build (Steam 
 **None**, not `old-rounds-for-mods`).
 
 **Status:** tested on an Apple M4, macOS 27.2, both native and under Rosetta. Intel Macs should work but are
-untested. Windows: the installer's output is checked identical to the Mac install, file for file; first runs on real
-Windows PCs are pending.
-Online lobbies through RoundsWithFriends haven't been tested yet.
+untested. Windows: tested on Windows 11 with PowerShell 5.1.
+Online through RoundsWithFriends: tested with two Macs and a Windows PC in one lobby.
 
 Running it again is safe: it checks every file against the pack, adds what's missing and updates what it installed
 before, but leaves files you changed (and mods you added) alone and lists them. `--repair` puts the pack's copies
