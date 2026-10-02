@@ -35,7 +35,10 @@ Online through RoundsWithFriends: tested with two Macs and a Windows PC in one l
 
 Running it again is safe: it checks every file against the pack, adds what's missing and updates what it installed
 before, but leaves files you changed (and mods you added) alone and lists them. `--repair` puts the pack's copies
-back, moving yours to a backup folder.
+back, moving yours to a backup folder. Downloads are kept, so running it again is quick.
+
+If it stops, the error says what failed. Everything it showed is also in a log to send along:
+`~/Library/Logs/rounds-mac-modpack-install.log` on Mac.
 
 Options: `--no-steam-config` (don't edit Steam; paste the launch option yourself), `--no-launch`,
 `--game-dir <path>`, `--rosetta` (run under Rosetta instead of natively), `--repair`.

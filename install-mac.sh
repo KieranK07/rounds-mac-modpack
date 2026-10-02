@@ -19,10 +19,10 @@
 #          --game-dir <path>   ROUNDS folder, if Steam keeps it somewhere unusual
 #          --rosetta           run the game under Rosetta instead of natively (the setup before v1.1.0)
 #          --repair            also replace files you changed (your copies are moved to a backup folder)
-set -euo pipefail
+set -Eeuo pipefail
 
 REPO="KieranK07/rounds-mac-modpack"
-REF="${ROUNDS_MODPACK_REF:-v1.4.0}"
+REF="${ROUNDS_MODPACK_REF:-v1.4.1}"
 APPID=1557740
 BEPINEX_URL="https://github.com/BepInEx/BepInEx/releases/download/v5.4.23.5/BepInEx_macos_universal_5.4.23.5.zip"
 BEPINEX_SHA="01c2ae782eb016dfd6c345a18dbd2dcafffb3d9d318449d6486689f426b4a323"
@@ -43,13 +43,44 @@ while [ $# -gt 0 ]; do
   esac; shift
 done
 
-say()  { printf '\n\033[1m==> %s\033[0m\n' "$*"; }
-note() { printf '    %s\n' "$*"; }
-die()  { printf '\n\033[31mERROR: %s\033[0m\n' "$*" >&2; exit 1; }
+# Everything shown is also written to this log (send it along if something goes wrong).
+LOG="$HOME/Library/Logs/rounds-mac-modpack-install.log"
+mkdir -p "$(dirname "$LOG")" && : > "$LOG"
+log()  { printf '%s\n' "$*" >> "$LOG"; }
+STEP_T0=$SECONDS; START=$SECONDS
+took() { local s=$((SECONDS - STEP_T0)); [ "$s" -ge 3 ] && note "(took ${s}s)"; STEP_T0=$SECONDS; return 0; }
+say()  { took; printf '\n\033[1m==> %s\033[0m\n' "$*"; log ""; log "==> $* [$(date +%H:%M:%S)]"; }
+note() { printf '    %s\n' "$*"; log "    $*"; }
+die()  {
+  trap - ERR
+  printf '\n\033[31mERROR: %s\033[0m\n' "$*" >&2; log ""; log "ERROR: $*"
+  printf 'Full log: %s\n' "$LOG" >&2
+  exit 1
+}
+# Anything that fails unexpectedly says what and where, instead of the script just stopping.
+trap 'rc=$?; die "unexpected failure (exit $rc) at line $LINENO: $BASH_COMMAND"' ERR
 sha()  { shasum -a 256 < "$1" | cut -d' ' -f1; }
-fetch() { # url dest [sha]
-  curl -fL --retry 3 --retry-delay 2 -sS -A "Mozilla/5.0 rounds-mac-modpack" -o "$2" "$1" || die "download failed: $1"
-  if [ -n "${3:-}" ] && [ "$(sha "$2")" != "$3" ]; then die "checksum mismatch for $1 (file changed upstream?)"; fi
+CACHE="$HOME/Library/Caches/rounds-mac-modpack"   # downloads, by checksum, so running this again is quick
+CURL=(curl -fL -sS --connect-timeout 20 --speed-limit 2048 --speed-time 30 --retry 4 --retry-delay 3 -A "Mozilla/5.0 rounds-mac-modpack")
+curl --help all 2>/dev/null | grep -q -- --retry-all-errors && CURL+=(--retry-all-errors)
+human() { awk -v b="$1" 'BEGIN { if (b >= 1048576) printf "%.1f MB", b / 1048576; else printf "%d KB", (b + 1023) / 1024 }'; }
+download() { # url dest [sha] [label]: 0 if it arrived (and matches), 1 with the reason on stderr otherwise
+  local url="$1" dest="$2" want="${3:-}" label="${4:-${1##*/}}" t0=$SECONDS
+  if [ -n "$want" ] && [ -f "$CACHE/$want" ] && [ "$(sha "$CACHE/$want")" = "$want" ]; then
+    cp "$CACHE/$want" "$dest"; note "$label (already downloaded)"; return 0
+  fi
+  printf '    %s ... ' "$label"
+  if ! "${CURL[@]}" -o "$dest" "$url" 2> "$WORK/curl.err"; then
+    echo "failed"; log "    $label ... failed: $url"; cat "$WORK/curl.err" >&2; cat "$WORK/curl.err" >> "$LOG"; return 1
+  fi
+  local size; size=$(stat -f %z "$dest")
+  echo "$(human "$size"), $((SECONDS - t0))s"; log "    $label ... $(human "$size"), $((SECONDS - t0))s"
+  if [ -n "$want" ] && [ "$(sha "$dest")" != "$want" ]; then echo "    checksum mismatch: $url" >&2; log "    checksum mismatch"; return 1; fi
+  if [ -n "$want" ]; then mkdir -p "$CACHE" && cp "$dest" "$CACHE/$want"; fi
+  return 0
+}
+fetch() { # url dest [sha] [label]
+  download "$@" || die "couldn't download ${4:-$1} ($1). Check your internet connection and run this again."
 }
 
 [ "$(uname -s)" = Darwin ] || die "this installer is for macOS; on Windows use install-windows.ps1 (see README)"
@@ -62,7 +93,7 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd || true)"
 if [ -n "$HERE" ] && [ -f "$HERE/manifest/sources.tsv" ] && [ -z "${ROUNDS_MODPACK_REF:-}" ]; then
   PAYLOAD="$HERE"; note "using local copy: $PAYLOAD"
 else
-  fetch "https://codeload.github.com/$REPO/tar.gz/refs/tags/$REF" "$WORK/payload.tgz"
+  fetch "https://codeload.github.com/$REPO/tar.gz/refs/tags/$REF" "$WORK/payload.tgz" "" "modpack $REF"
   mkdir -p "$WORK/payload" && tar -xzf "$WORK/payload.tgz" -C "$WORK/payload" --strip-components 1
   PAYLOAD="$WORK/payload"
 fi
@@ -109,14 +140,13 @@ if pgrep -x ROUNDS >/dev/null; then die "ROUNDS is running - quit it and run thi
 # this again only checks the install.
 ST="$WORK/stage"; mkdir -p "$ST"
 say "Preparing BepInEx 5.4.23.5"
-fetch "$BEPINEX_URL" "$WORK/bepinex.zip" "$BEPINEX_SHA"
+fetch "$BEPINEX_URL" "$WORK/bepinex.zip" "$BEPINEX_SHA" "BepInEx 5.4.23.5"
 ditto -x -k "$WORK/bepinex.zip" "$ST"
 if [ "$NATIVE" = 1 ]; then
   # BepInEx 5.4.23.5 can't write Harmony patches into arm64 code. The fix (BepInEx PR #1402, by cdobbyn) is merged
   # but not released yet: patch the two DLLs it touches to that build (tools/bepinex-arm64) and use Doorstop 4.6.0.
   note "setting up native Apple Silicon (arm64)"
-  if curl -fL --retry 3 -sS -A "Mozilla/5.0 rounds-mac-modpack" -o "$WORK/doorstop.zip" "$DOORSTOP_URL" \
-      && [ "$(sha "$WORK/doorstop.zip")" = "$DOORSTOP_SHA" ]; then
+  if download "$DOORSTOP_URL" "$WORK/doorstop.zip" "$DOORSTOP_SHA" "Doorstop 4.6.0"; then
     ditto -x -k "$WORK/doorstop.zip" "$WORK/doorstop"
     cp "$WORK/doorstop/universal/libdoorstop.dylib" "$WORK/doorstop/universal/.doorstop_version" "$ST/"
     while IFS=$'\t' read -r rel before after patch; do
@@ -157,15 +187,19 @@ cp "$PAYLOAD"/bundled/HotReload.dll "$PAYLOAD"/bundled/HotReload.pdb "$ST/BepInE
 # ---------------------------------------------------------------- mods from their original sources
 say "Downloading mods from their authors (Thunderstore / GitHub)"
 P="$ST/BepInEx/plugins"
+NDL=$(grep -c . "$PAYLOAD/manifest/sources.tsv"); i=0
+NMODS=$(cut -f1 "$PAYLOAD/manifest/sources.tsv" | cut -d/ -f1 | grep . | sort -u | wc -l | tr -d ' ')
 while IFS=$'\t' read -r id kind url want; do
   [ -z "$id" ] && continue
+  i=$((i + 1))
   case "$kind" in
     thunderstore)
-      fetch "$url" "$WORK/m.zip" "$want"
-      mkdir -p "$P/$id" && unzip -q -o "$WORK/m.zip" -d "$P/$id" 2>/dev/null || [ $? -eq 1 ]   # 1 = warnings (Windows paths)
-      note "$id";;
+      fetch "$url" "$WORK/m.zip" "$want" "[$i/$NDL] $id"
+      mkdir -p "$P/$id"
+      unzip -q -o "$WORK/m.zip" -d "$P/$id" > "$WORK/unzip.log" 2>&1 || { rc=$?   # 1 = only warnings (Windows paths)
+        [ "$rc" -eq 1 ] || die "couldn't unpack $id (unzip exit $rc): $(tail -3 "$WORK/unzip.log")"; };;
     github)
-      mkdir -p "$P/$(dirname "$id")"; fetch "$url" "$P/$id" "$want"; note "$id";;
+      mkdir -p "$P/$(dirname "$id")"; fetch "$url" "$P/$id" "$want" "[$i/$NDL] $id";;
   esac
 done < "$PAYLOAD/manifest/sources.tsv"
 
@@ -275,9 +309,10 @@ else
 fi
 
 say "Done! ROUNDS is modded."
+note "took $((SECONDS - START))s; log: $LOG"
 if [ "$NATIVE" = 1 ]; then note "Runs natively on Apple Silicon. To use Rosetta instead, run this again with --rosetta."
 elif [ "$APPLE_SILICON" = 1 ]; then note "Runs under Rosetta."; fi
-note "Mods: 31 from Thunderstore/GitHub + Mac Compat Fixes. Credits: in-game CREDITS > KIERAN'S UNBOUND, and the README."
+note "Mods: $NMODS from Thunderstore/GitHub + Mac Compat Fixes. Credits: in-game CREDITS > KIERAN'S UNBOUND, and the README."
 note "Hot Reload: mods in BepInEx/scripts swap in and out while the game runs (F6 reloads them all)."
 note "Uninstall: Steam > ROUNDS > Properties > clear Launch Options (or delete the BepInEx folder)."
 if [ "$LAUNCH" = 1 ]; then
