@@ -10,7 +10,7 @@ namespace MacCompatFixes
     // Small fixes for running the (ported) mod stack on the current ROUNDS build, on macOS.
     // Loaded by Hot Reload from BepInEx/scripts, so it can be swapped while the game runs: every load must be able
     // to tear itself down completely in OnDestroy.
-    [BepInPlugin("kieran.rounds.maccompatfixes", "Mac Compat Fixes", "1.8.2")]
+    [BepInPlugin("kieran.rounds.maccompatfixes", "Mac Compat Fixes", "1.8.3")]
     [BepInDependency("com.willis.rounds.unbound")]
     [BepInDependency("pykess.rounds.plugins.moddingutils", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.XAngelMoonX.rounds.CosmicRounds", BepInDependency.DependencyFlags.SoftDependency)]

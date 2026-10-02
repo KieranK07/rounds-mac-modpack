@@ -33,3 +33,4 @@ leaving no player spawn and no cards. Copy ROUNDS-modfix/BepInEx.cfg to <game>/B
   components made with `new`; other mods' ResetStats patches call GetComponent there and throw, which escaped the
   panel's static constructor and RoundsWithFriends' DoStartGame. ResetStats failures on such detached components are
   now ignored (finalizer), and any panel error is logged instead of stopping the pick (StatsViewerFixes.cs).
+- 1.8.3: UnboundLib's Discord and Thunderstore links on the main menu are shown again (no longer hidden).

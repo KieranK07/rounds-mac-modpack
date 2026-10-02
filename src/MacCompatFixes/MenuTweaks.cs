@@ -3,18 +3,11 @@ using UnityEngine;
 
 namespace MacCompatFixes
 {
-    // Kieran's menu tweaks: hide UnboundLib's Discord/Thunderstore links and retitle "UNBOUND".
+    // Kieran's menu tweaks: retitle "UNBOUND" and size UnboundLib's menu buttons like the game's.
     // Kept reload-safe: Undo() puts both back when the plugin unloads.
     internal static class MenuTweaks
     {
         public const string Title = "KIERAN'S UNBOUND";
-        static System.Type linksType;
-
-        static System.Type LinksType => linksType ?? (linksType = AccessTools.TypeByName("UnboundLib.Utils.UI.MainMenuLinks"));
-
-        static GameObject LinksObject() =>
-            LinksType == null ? null : AccessTools.Field(LinksType, "links")?.GetValue(null) as GameObject;
-
         public static BepInEx.Logging.ManualLogSource Log;
         struct Original { public Vector2 size; public float lePref, leMin; public bool auto; public float font; public TMPro.FontStyles style; }
         static readonly System.Collections.Generic.Dictionary<int, Original> originals = new System.Collections.Generic.Dictionary<int, Original>();
@@ -82,9 +75,6 @@ namespace MacCompatFixes
             NormaliseButtons();
             KieranCredits.Ensure(Log);
 
-            var links = LinksObject();
-            if (links != null && links.activeSelf) links.SetActive(false);
-
             var go = GameObject.Find("Unbound Text Object");
             var text = go != null ? go.GetComponent<TMPro.TMP_Text>() : null;
             if (text != null && text.text == "UNBOUND")
@@ -98,8 +88,6 @@ namespace MacCompatFixes
         {
             UndoButtons();
             KieranCredits.Unregister();
-            var links = LinksObject();
-            if (links != null) links.SetActive(true);
             var go = GameObject.Find("Unbound Text Object");
             var text = go != null ? go.GetComponent<TMPro.TMP_Text>() : null;
             if (text != null && text.text == Title) text.text = "UNBOUND";
@@ -152,16 +140,6 @@ namespace MacCompatFixes
         }
 
         public static void Unregister() => Registered()?.Remove(Page);
-    }
-
-    // UnboundLib re-shows the links every time the main menu opens.
-    [HarmonyPatch]
-    internal static class MainMenuLinks_AddLinks_Skip
-    {
-        static bool Prepare() => AccessTools.TypeByName("UnboundLib.Utils.UI.MainMenuLinks") != null;
-        static System.Reflection.MethodBase TargetMethod() =>
-            AccessTools.Method(AccessTools.TypeByName("UnboundLib.Utils.UI.MainMenuLinks"), "AddLinks");
-        static bool Prefix() => false;
     }
 
     internal class MenuTweaksRunner : MonoBehaviour

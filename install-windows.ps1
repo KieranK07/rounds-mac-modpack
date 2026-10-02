@@ -22,7 +22,7 @@ function Install-RoundsModpack {
     $ErrorActionPreference = 'Stop'
     $ProgressPreference = 'SilentlyContinue'
     $Repo = "KieranK07/rounds-mac-modpack"
-    $Ref = if ($env:ROUNDS_MODPACK_REF) { $env:ROUNDS_MODPACK_REF } else { "v1.3.2" }
+    $Ref = if ($env:ROUNDS_MODPACK_REF) { $env:ROUNDS_MODPACK_REF } else { "v1.3.3" }
     $AppId = 1557740
     $BepInExUrl = "https://github.com/BepInEx/BepInEx/releases/download/v5.4.23.5/BepInEx_win_x64_5.4.23.5.zip"
     $BepInExSha = "82f9878551030f54657792c0740d9d51a09500eeae1fba21106b0c441e6732c4"
