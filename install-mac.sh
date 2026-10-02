@@ -22,7 +22,7 @@
 set -euo pipefail
 
 REPO="KieranK07/rounds-mac-modpack"
-REF="${ROUNDS_MODPACK_REF:-v1.3.3}"
+REF="${ROUNDS_MODPACK_REF:-v1.4.0}"
 APPID=1557740
 BEPINEX_URL="https://github.com/BepInEx/BepInEx/releases/download/v5.4.23.5/BepInEx_macos_universal_5.4.23.5.zip"
 BEPINEX_SHA="01c2ae782eb016dfd6c345a18dbd2dcafffb3d9d318449d6486689f426b4a323"

@@ -29,6 +29,7 @@ Versions are the ones the patcher targets. "none found" means we found no licens
 | **SetRounds** 1.2.4<br>Set rounds per game and points per round from Mod Options. | Ascyst, Pykess (GitHub: pdcook; sync fixes) | [Thunderstore](https://thunderstore.io/c/rounds/p/Ascyst/SetRounds/) · [Source](https://github.com/Ascyst/SetRounds) | none found |
 | **Will's Wacky Map Objects** 1.2.4<br>Adds extra objects to the MapsExtended map editor. | willuwontu | [Thunderstore](https://thunderstore.io/c/rounds/p/willuwontu/WillsWackyMapObjects/) · [Source](https://github.com/willuwontu/WillsWackyMapObjects) | none found |
 | **CardBarPatch** 2.1.1<br>Customize the in-game card bar. | BossSloth (GitHub: BossSloth, formerly tddebart) | [Thunderstore](https://thunderstore.io/c/rounds/p/BossSloth/CardBarPatch/) · [Source](https://github.com/BossSloth/BossSlothsMods) | GPL-3.0 |
+| **Keys Maps** 5.4.0<br>49 custom maps for MapsExtended, made for 4+ players. | Keys | [Thunderstore](https://thunderstore.io/c/rounds/p/Keys/KeysMaps/) | none found |
 
 ## Patches & fixes
 

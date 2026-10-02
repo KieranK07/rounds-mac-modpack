@@ -1,7 +1,7 @@
 # ROUNDS modded on Mac (and Windows)
 
-One command takes a Mac from **no ROUNDS** to **31 mods working** (UnboundLib, Cosmic Rounds, RoundsWithFriends,
-Classes Manager Reborn, MapsExtended and friends) on the **current** ROUNDS build.
+One command takes a Mac from **no ROUNDS** to **32 mods working** (UnboundLib, Cosmic Rounds, RoundsWithFriends,
+Classes Manager Reborn, MapsExtended with 49 custom maps, and friends) on the **current** ROUNDS build.
 
 - **Playing?** [Install](#install) (Mac or Windows, one command)
 - **Making mods?** [ROUNDS Porting Toolkit](https://github.com/KieranK07/rounds-porting-toolkit): scan and fix your mod for the current game

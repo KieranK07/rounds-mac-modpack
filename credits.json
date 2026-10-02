@@ -203,6 +203,19 @@
     "notes": "Source is the CardBarPatch folder of the BossSlothsMods repo (manifest still links the old tddebart URL, which redirects)."
   },
   {
+    "id": "Keys-KeysMaps",
+    "name": "Keys Maps",
+    "version": "5.4.0",
+    "group": "Content mods",
+    "authors": [
+      "Keys"
+    ],
+    "thunderstore": "https://thunderstore.io/c/rounds/p/Keys/KeysMaps/",
+    "source": null,
+    "license": "none found",
+    "description": "49 custom maps for MapsExtended, made for 4+ players."
+  },
+  {
     "id": "RoundsModding-AllThePatch",
     "name": "AllThePatch",
     "version": "1.0.0",
