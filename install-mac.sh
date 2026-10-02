@@ -150,7 +150,7 @@ chmod +x "$ST/run_bepinex.sh"
 mkdir -p "$ST/BepInEx/plugins" "$ST/BepInEx/scripts" "$ST/BepInEx/config"
 cp "$PAYLOAD"/config/*.cfg "$ST/BepInEx/config/"
 
-# Hot Reload (this repo, MIT): loads BepInEx/scripts and swaps mods in and out while the game runs
+# Hot Reload (github.com/KieranK07/rounds-porting-toolkit, MIT): loads BepInEx/scripts and swaps mods in and out while the game runs
 mkdir -p "$ST/BepInEx/plugins/HotReload"
 cp "$PAYLOAD"/bundled/HotReload.dll "$PAYLOAD"/bundled/HotReload.pdb "$ST/BepInEx/plugins/HotReload/"
 

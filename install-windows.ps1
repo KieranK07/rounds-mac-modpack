@@ -130,7 +130,7 @@ function Install-RoundsModpack {
         $BX = Join @($St, 'BepInEx')
         foreach ($d in 'plugins', 'scripts', 'config') { [void][IO.Directory]::CreateDirectory((Join @($BX, $d))) }
         Get-ChildItem -LiteralPath (Join @($Payload, 'config')) -Filter '*.cfg' | ForEach-Object { Copy-Item -LiteralPath $_.FullName -Destination (Join @($BX, 'config', $_.Name)) }
-        # Hot Reload (this repo, MIT): loads BepInEx/scripts and swaps mods in and out while the game runs
+        # Hot Reload (github.com/KieranK07/rounds-porting-toolkit, MIT): loads BepInEx/scripts and swaps mods in and out while the game runs
         foreach ($f in 'HotReload.dll', 'HotReload.pdb') {
             $dest = Join @($BX, 'plugins', 'HotReload', $f); MkParent $dest
             Copy-Item -LiteralPath (Join @($Payload, 'bundled', $f)) -Destination $dest

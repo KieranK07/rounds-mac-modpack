@@ -3,6 +3,11 @@
 One command takes a Mac from **no ROUNDS** to **31 mods working** (UnboundLib, Cosmic Rounds, RoundsWithFriends,
 Classes Manager Reborn, MapsExtended and friends) on the **current** ROUNDS build.
 
+- **Playing?** [Install](#install) (Mac or Windows, one command)
+- **Making mods?** [ROUNDS Porting Toolkit](https://github.com/KieranK07/rounds-porting-toolkit): scan and fix your mod for the current game
+
+## Install
+
 ```sh
 curl -fsSL https://raw.githubusercontent.com/KieranK07/rounds-mac-modpack/main/install-mac.sh | bash
 ```
@@ -39,6 +44,13 @@ Windows: `-Repair`, `-NoLaunch`, `-GameDir <path>`, passed as
 To switch for one launch, put `ROUNDS_ARCH=x86_64,arm64` (Rosetta) or `ROUNDS_ARCH=arm64,x86_64` (native) in front
 of the Steam launch option. To run from a clone: `./install-mac.sh`.
 
+## Port your mod to the 2025 update
+
+**[ROUNDS Porting Toolkit](https://github.com/KieranK07/rounds-porting-toolkit)** finds what the update (game version 1.1.2) broke in a mod DLL and fixes the
+mechanical parts: renamed fields, new damage parameters, moved types, Harmony and reflection renames. It's how most of
+the mods here were ported. One download for Windows, macOS or Linux, no source or .NET needed, plus an optional Hot
+Reload plugin to swap a mod into the running game. Start with its [README](https://github.com/KieranK07/rounds-porting-toolkit#readme).
+
 ## Why this exists
 
 Two things broke modded ROUNDS on Mac:
@@ -59,7 +71,7 @@ Two things broke modded ROUNDS on Mac:
 | UnboundLib 4.2.5 | Windows-only `user32.dll` call removed, so it starts on Mac (`tools/unboundlib-macfix`) |
 | MapsExtended | Odin Serializer stand-in built from the Apache-2.0 open-source version |
 | Mac Compat Fixes plugin (`src/MacCompatFixes`) | Mod shaders swapped to the game's Metal copies or rebuilt; card names, card-bar hover, toggle-cards menu art; Cosmic Rounds runtime errors; menu layout |
-| Hot Reload plugin (`src/HotReload`) | Swaps mods in `BepInEx/scripts` while the game runs and removes what the old copy left behind; replaces BepInEx ScriptEngine ([`docs/HOTRELOAD.md`](docs/HOTRELOAD.md)) |
+| Hot Reload plugin ([rounds-porting-toolkit](https://github.com/KieranK07/rounds-porting-toolkit)) | Swaps mods in `BepInEx/scripts` while the game runs and removes what the old copy left behind; replaces BepInEx ScriptEngine ([guide](https://github.com/KieranK07/rounds-porting-toolkit/blob/main/docs/HOTRELOAD.md)) |
 
 Full details: [`docs/`](docs/). Each patch's before/after hash is in [`manifest/patches.tsv`](manifest/patches.tsv).
 
@@ -72,21 +84,9 @@ authors, links and license, and **[NOTICE.md](NOTICE.md)** for what's downloaded
 No mod files are re-uploaded here: the installer fetches them from their authors and patches them locally.
 If you're an author and want something changed, please open an issue.
 
-## Porting your own mod
+## Working on this repo
 
-[`tools/rounds-port`](tools/rounds-port) scans any ROUNDS mod DLL for what the 2025 update broke and fixes the
-mechanical parts (renamed fields, new damage parameters, moved types, Harmony and reflection renames). It runs on
-Windows, macOS and Linux and is how most of the mods here were ported.
-
-```sh
-cd tools/rounds-port && dotnet run -c Release -- scan path/to/MyMod.dll
-```
-
-`rounds-port hot MyMod.dll` ports it and swaps it into the running game.
-
-## Developing
-
-Mods in `BepInEx/scripts`, including `MacCompatFixes`, load through [Hot Reload](docs/HOTRELOAD.md): rebuild one
+Mods in `BepInEx/scripts`, including `MacCompatFixes`, load through [Hot Reload](https://github.com/KieranK07/rounds-porting-toolkit/blob/main/docs/HOTRELOAD.md): rebuild one
 while the game is running and the new version is live a second later (**F6** reloads them all).
 
 ```sh
