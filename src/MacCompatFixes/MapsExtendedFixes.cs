@@ -20,8 +20,10 @@ namespace MacCompatFixes
         static bool told;
 
         static System.Type Manager => AccessTools.TypeByName("MapsExt.NetworkedMapObjectManager");
-        static bool Prepare() => Manager != null;
-        static MethodBase TargetMethod() => AccessTools.Method(Manager, "Instantiate");
+        static bool Prepare() => Manager != null && TargetMethod() != null;
+        // Instantiate(MapObjectData data, Transform parent, Action<GameObject> onInstantiate): there are other overloads
+        internal static MethodBase TargetMethod() => AccessTools.DeclaredMethod(Manager, "Instantiate",
+            new[] { AccessTools.TypeByName("MapsExt.MapObjects.MapObjectData"), typeof(Transform), typeof(System.Action<GameObject>) });
 
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -32,6 +34,12 @@ namespace MacCompatFixes
                 if (ins.Calls(start)) yield return new CodeInstruction(OpCodes.Call, ours) { labels = ins.labels, blocks = ins.blocks };
                 else yield return ins;
             }
+        }
+
+        internal static bool Active(string harmonyId)
+        {
+            var t = Manager == null ? null : TargetMethod();
+            return t != null && Harmony.GetPatchInfo(t)?.Owners.Contains(harmonyId) == true;
         }
 
         public static Coroutine StartCoroutine(MonoBehaviour self, IEnumerator routine)

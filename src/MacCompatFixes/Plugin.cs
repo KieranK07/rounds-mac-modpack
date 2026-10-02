@@ -43,6 +43,7 @@ namespace MacCompatFixes
             helper = LetterboxClear.Create();
             MapsExtClientSync_Fix.Log = Logger;
             MapsExtClientSync_Fix.Host = helper.AddComponent<CoroutineHost>();
+            if (MapsExtClientSync_Fix.Active(harmony.Id)) Logger.LogInfo("MapsExtended client map sync fix: on");
             MissingText.Apply(Logger);
             MenuTweaks.Log = Logger;
             try { KieranCredits.Register(Logger); } catch (Exception e) { Logger.LogWarning("credits: " + e.GetBaseException().Message); }
