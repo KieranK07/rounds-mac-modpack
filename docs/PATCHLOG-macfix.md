@@ -34,3 +34,6 @@ leaving no player spawn and no cards. Copy ROUNDS-modfix/BepInEx.cfg to <game>/B
   panel's static constructor and RoundsWithFriends' DoStartGame. ResetStats failures on such detached components are
   now ignored (finalizer), and any panel error is logged instead of stopping the pick (StatsViewerFixes.cs).
 - 1.8.3: UnboundLib's Discord and Thunderstore links on the main menu are shown again (no longer hidden).
+- 1.8.4: online custom maps: players who aren't the host now get the maps' physics objects (boxes, ropes, balls,
+  saws). MapsExtended's map-object manager gets destroyed on the current build, and a client's map load stopped at the
+  first networked object; its sync coroutine now runs on Mac Compat Fixes' helper object. Not Mac-specific.

@@ -10,7 +10,7 @@ namespace MacCompatFixes
     // Small fixes for running the (ported) mod stack on the current ROUNDS build, on macOS.
     // Loaded by Hot Reload from BepInEx/scripts, so it can be swapped while the game runs: every load must be able
     // to tear itself down completely in OnDestroy.
-    [BepInPlugin("kieran.rounds.maccompatfixes", "Mac Compat Fixes", "1.8.3")]
+    [BepInPlugin("kieran.rounds.maccompatfixes", "Mac Compat Fixes", "1.8.4")]
     [BepInDependency("com.willis.rounds.unbound")]
     [BepInDependency("pykess.rounds.plugins.moddingutils", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.XAngelMoonX.rounds.CosmicRounds", BepInDependency.DependencyFlags.SoftDependency)]
@@ -41,6 +41,8 @@ namespace MacCompatFixes
             CardBarHover_Fix.Log = Logger;
             StatsPanelGuard_Fix.Log = Logger;
             helper = LetterboxClear.Create();
+            MapsExtClientSync_Fix.Log = Logger;
+            MapsExtClientSync_Fix.Host = helper.AddComponent<CoroutineHost>();
             MissingText.Apply(Logger);
             MenuTweaks.Log = Logger;
             try { KieranCredits.Register(Logger); } catch (Exception e) { Logger.LogWarning("credits: " + e.GetBaseException().Message); }
